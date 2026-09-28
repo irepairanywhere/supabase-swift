@@ -1,7 +1,10 @@
 # Dictum
 
-Free, open-source voice dictation for macOS, in the spirit of Wispr Flow. Hold a key, talk, let go:
-the cleaned-up text appears wherever your cursor is, in any app.
+Free, open-source voice dictation for macOS and iPhone, in the spirit of Wispr Flow. Hold a key,
+talk, let go: the cleaned-up text appears wherever your cursor is, in any app.
+
+- **Mac**: menu bar app, global shortcut, three speech engines. This document.
+- **iPhone**: a voice keyboard plus companion app. See [`iOS/README.md`](iOS/README.md).
 
 - **Hold-to-talk** with a global shortcut (default: Right ⌥, or Fn / any combo you like). Quick tap
   locks hands-free mode; Esc cancels.
@@ -79,7 +82,8 @@ API keys are stored in your login keychain.
 
 ```
 Dictum/
-├── Package.swift            SwiftPM manifest for the app (depends on DictumCore + WhisperKit)
+├── iOS/                     iPhone app + keyboard extension (XcodeGen spec, see iOS/README.md)
+├── Package.swift            SwiftPM manifest for the Mac app (depends on DictumCore + WhisperKit)
 ├── Makefile, scripts/       make app | run | install | xcodeproj | test-core
 ├── project.yml              XcodeGen spec (optional Xcode project)
 ├── Resources/               Info.plist, entitlements
@@ -115,9 +119,7 @@ Run the core unit tests with `make test-core` (or `cd DictumCore && swift test`)
 
 ## Roadmap
 
-- iOS keyboard extension sharing `DictumCore` (keyboard extensions can't record audio directly, so
-  it needs the containing-app hand-off pattern).
-- Streaming partial results in the overlay while you speak.
+- Streaming partial results in the Mac overlay while you speak (the iPhone keyboard already does this).
 - Apple's newer `SpeechAnalyzer` API on macOS 26+ as a fourth engine.
 - Per-app style presets and snippets.
 

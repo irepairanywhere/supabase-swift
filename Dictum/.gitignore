@@ -7,3 +7,6 @@ Dictum.xcodeproj/
 Package.resolved
 DictumCore/.build/
 DictumCore/Package.resolved
+iOS/DictumMobile.xcodeproj/
+iOS/build/
+iOS/DerivedData/

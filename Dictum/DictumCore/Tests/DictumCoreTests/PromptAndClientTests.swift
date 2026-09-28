@@ -68,3 +68,28 @@ final class PromptAndClientTests: XCTestCase {
     XCTAssertEqual(messages.map { $0["role"] }, ["system", "user"])
   }
 }
+
+final class PolisherAndLenientDecodingTests: XCTestCase {
+  func testPolisherRequiresURLAndModel() {
+    XCTAssertNil(Polisher(baseURL: "not a url", apiKey: nil, model: "m"))
+    XCTAssertNil(Polisher(baseURL: "http://localhost:11434/v1", apiKey: nil, model: "  "))
+    XCTAssertEqual(Polisher(baseURL: "http://localhost:11434/v1", apiKey: nil, model: " llama3.2 ")?.model, "llama3.2")
+  }
+
+  func testLenientDecodingFallsBackToDefaults() throws {
+    struct Prefs: Decodable, Equatable {
+      var a: Int
+      var b: String
+      init(a: Int, b: String) { self.a = a; self.b = b }
+      init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        a = c.decode(.a, default: 7)
+        b = c.decode(.b, default: "x")
+      }
+    }
+    let decoded = try JSONDecoder().decode(Prefs.self, from: Data("{\"a\":\"oops\"}".utf8))
+    XCTAssertEqual(decoded, Prefs(a: 7, b: "x"))
+    let full = try JSONDecoder().decode(Prefs.self, from: Data("{\"a\":1,\"b\":\"y\"}".utf8))
+    XCTAssertEqual(full, Prefs(a: 1, b: "y"))
+  }
+}
