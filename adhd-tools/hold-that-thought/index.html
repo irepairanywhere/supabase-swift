@@ -1,0 +1,854 @@
+<title>Hold That Thought</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Instrument+Sans:ital,wght@0,400..600;1,400&display=swap">
+<style>
+  :root {
+    --bg: #F3F5F8;
+    --surface: #FFFFFF;
+    --surface-2: #EAEEF3;
+    --ink: #172029;
+    --muted: #5E6B79;
+    --line: #D8DEE6;
+    --accent: #2C4F82;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E3EAF5;
+    --hold: #F08A00;
+    --hold-ink: #1C1200;
+    --hold-soft: #FFF0D6;
+    --hold-text: #7A4400;
+    --good: #2E9C44;
+    --good-ink: #FFFFFF;
+    --danger: #B93A2C;
+    --focus: #2C4F82;
+    --shadow: 0 1px 2px rgba(23, 32, 41, .06), 0 10px 28px rgba(23, 32, 41, .08);
+    --r: 14px;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0F141B;
+      --surface: #161D27;
+      --surface-2: #1E2734;
+      --ink: #E8EDF3;
+      --muted: #97A3B2;
+      --line: #2A3441;
+      --accent: #8FB1E8;
+      --accent-ink: #0B1421;
+      --accent-soft: #1C2A40;
+      --hold: #FFA337;
+      --hold-ink: #1C1200;
+      --hold-soft: #3B2A0E;
+      --hold-text: #FFC98A;
+      --good: #5BC56E;
+      --good-ink: #08200D;
+      --danger: #E9705C;
+      --focus: #8FB1E8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 10px 28px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0F141B;
+    --surface: #161D27;
+    --surface-2: #1E2734;
+    --ink: #E8EDF3;
+    --muted: #97A3B2;
+    --line: #2A3441;
+    --accent: #8FB1E8;
+    --accent-ink: #0B1421;
+    --accent-soft: #1C2A40;
+    --hold: #FFA337;
+    --hold-ink: #1C1200;
+    --hold-soft: #3B2A0E;
+    --hold-text: #FFC98A;
+    --good: #5BC56E;
+    --good-ink: #08200D;
+    --danger: #E9705C;
+    --focus: #8FB1E8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 10px 28px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  body.modal { overflow: hidden; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 10px calc(112px + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    gap: 12px;
+  }
+  .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 4px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 18px; letter-spacing: -.01em; margin: 0; }
+  .status { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .status.dot-ok::before { background: var(--good); }
+  .status.dot-wait::before { background: var(--hold); }
+  .status.dot-bad::before { background: var(--danger); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+  .now { border-color: var(--accent); box-shadow: var(--shadow); }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; display: block; }
+  .now .eyebrow { color: var(--accent); }
+  h1, h2 { text-wrap: balance; }
+  .now-text {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(22px, 6vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    margin: 0 0 12px;
+    overflow-wrap: anywhere;
+  }
+  .now-text.long { font-size: clamp(18px, 4.5vw, 22px); line-height: 1.3; }
+  .now-text.muted { color: var(--muted); font-weight: 600; font-size: 20px; }
+  .next-step { display: grid; gap: 4px; margin-bottom: 12px; }
+  .next-step span { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .field {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .field:focus { border-color: var(--accent); background: var(--surface); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+  textarea.field { resize: vertical; min-height: 84px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.good { background: var(--good); color: var(--good-ink); border-color: var(--good); }
+  .btn.ghost { background: transparent; }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .btn.danger { color: var(--danger); }
+
+  .hold-banner {
+    background: var(--hold-soft);
+    color: var(--ink);
+    border: 1px solid var(--hold);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .catch-row { display: flex; gap: 8px; }
+  .catch-row .field { flex: 1; min-width: 0; }
+  .hint { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .empty { margin: 0; font-size: 14px; color: var(--muted); }
+  .welcome ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+
+  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  h2 { font-family: var(--display); font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -.005em; }
+  .count {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 2px 7px;
+    margin-left: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  details.card { padding: 0; }
+  details.card > summary { padding: 14px 16px; list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary::after { content: "+"; font-family: var(--display); font-weight: 700; color: var(--muted); font-size: 18px; }
+  details.card[open] > summary::after { content: "–"; }
+  details.card > *:not(summary) { margin-inline: 16px; }
+  details.card > *:last-child { margin-bottom: 16px; }
+  details.card > .empty { margin-bottom: 14px; }
+
+  .list { list-style: none; margin: 0; padding: 0; }
+  .item {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 4px;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    font-size: 15px;
+    line-height: 1.35;
+  }
+  .list li:first-child .item { border-top: 0; }
+  .item:hover { background: var(--surface-2); }
+  .item-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .item-when { color: var(--muted); font-size: 12px; white-space: nowrap; padding-top: 2px; font-variant-numeric: tabular-nums; }
+  .chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--hold-text);
+    background: var(--hold-soft);
+    border-radius: 999px;
+    padding: 1px 7px;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+  .words dl { margin: 0 0 16px; }
+  .words dt { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 10px; }
+  .words dd { margin: 2px 0 0; font-size: 15px; }
+  .foot { font-size: 12px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+
+  .holdbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    pointer-events: none;
+    z-index: 40;
+  }
+  .hold-btn {
+    pointer-events: auto;
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--hold);
+    color: var(--hold-ink);
+    border: 0;
+    border-radius: 16px;
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform .08s ease;
+  }
+  .hold-btn:active { transform: scale(.985); }
+  .hold-big { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+  .hold-sub { font-size: 12px; font-weight: 500; opacity: .8; }
+
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(10, 14, 20, .5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+    padding: 0;
+  }
+  .sheet {
+    background: var(--surface);
+    color: var(--ink);
+    width: 100%;
+    max-width: 560px;
+    border-radius: 18px 18px 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: 12px;
+  }
+  @media (min-width: 600px) {
+    .backdrop { align-items: center; padding: 16px; }
+    .sheet { border-radius: 18px; padding-bottom: 18px; }
+  }
+  .sheet h2 { font-size: 20px; }
+  .bookmark { margin: 0; font-size: 13px; color: var(--muted); }
+  .bookmark b { color: var(--ink); font-weight: 600; }
+  .sort-text {
+    font-family: var(--display);
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .sort-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sort-actions .btn { padding: 12px 10px; }
+  .sheet .hint { margin: 0; min-height: 1.2em; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    background: var(--ink);
+    color: var(--bg);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    max-width: calc(100% - 32px);
+    z-index: 60;
+  }
+  .toast-act { background: none; border: 0; color: var(--hold); font-weight: 700; padding: 0; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="brand">Hold That Thought</p>
+    <span class="status dot-wait" id="status">Connecting…</span>
+  </header>
+
+  <section class="card now" aria-labelledby="now-label">
+    <span class="eyebrow" id="now-label">Now</span>
+    <div id="now-empty">
+      <p class="now-text muted" id="now-empty-hint">Nothing picked yet.</p>
+      <button type="button" class="btn primary" id="pick-btn" hidden>Pick one thing</button>
+    </div>
+    <div id="now-active" hidden>
+      <div class="hold-banner" id="now-hold" hidden>
+        <span>Bookmarked at <b id="hold-since"></b> · <span id="hold-ago"></span></span>
+        <button type="button" class="btn small" id="resume-btn">Back to it</button>
+      </div>
+      <h1 class="now-text" id="now-text"></h1>
+      <label class="next-step">
+        <span>Next small step</span>
+        <input class="field" id="next-step" placeholder="e.g. open the doc and write the first line" autocomplete="off">
+      </label>
+      <div class="row">
+        <button type="button" class="btn good" id="now-done">Done</button>
+        <button type="button" class="btn" id="now-pause">Pause</button>
+        <button type="button" class="btn ghost" id="now-later">Not today</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <form id="catch-form">
+      <label class="eyebrow" for="catch-input">Catch a thought</label>
+      <div class="catch-row">
+        <input class="field" id="catch-input" placeholder="Type it. Sort it later." autocomplete="off" autocapitalize="sentences" enterkeyhint="send">
+        <button type="submit" class="btn primary">Catch</button>
+      </div>
+      <p class="hint">On a phone, tap the mic on your keyboard and say it.</p>
+    </form>
+  </section>
+
+  <section class="card welcome" id="welcome" hidden>
+    <span class="eyebrow">How this works</span>
+    <ol>
+      <li>Every thought goes in the box above. Don't sort it, just catch it.</li>
+      <li>When someone starts talking, hit the orange button. It bookmarks what you were doing and takes the thought.</li>
+      <li>When you have a minute, sort the pile one card at a time. Keep one thing in Now.</li>
+    </ol>
+  </section>
+
+  <section class="card" aria-labelledby="inbox-h">
+    <div class="sec-head">
+      <h2 id="inbox-h">Caught <span class="count" id="inbox-count">0</span></h2>
+      <button type="button" class="btn small" id="sort-btn" hidden>Sort one at a time</button>
+    </div>
+    <p class="empty" id="inbox-empty">Nothing waiting. Good.</p>
+    <ul class="list" id="inbox-list"></ul>
+    <p class="hint" id="inbox-more" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="next-h">
+    <div class="sec-head"><h2 id="next-h">Next <span class="count" id="next-count">0</span></h2></div>
+    <p class="empty" id="next-empty">Nothing lined up yet.</p>
+    <ul class="list" id="next-list"></ul>
+  </section>
+
+  <details class="card" id="later-d">
+    <summary><h2>Later <span class="count" id="later-count">0</span></h2></summary>
+    <p class="empty" id="later-empty">Nothing parked.</p>
+    <ul class="list" id="later-list"></ul>
+  </details>
+
+  <details class="card" id="done-d">
+    <summary><h2>Done today <span class="count" id="done-count">0</span></h2></summary>
+    <p class="empty" id="done-empty">Nothing yet today. One thing at a time.</p>
+    <ul class="list" id="done-list"></ul>
+    <p class="hint" id="done-older"></p>
+    <button type="button" class="btn small ghost" id="clear-done" hidden></button>
+  </details>
+
+  <details class="card words">
+    <summary><h2>Words for the moment</h2></summary>
+    <dl>
+      <dt>Someone talks while you're on a call</dt>
+      <dd>Hold up one finger. "On a call. Two minutes." Don't try to answer both.</dd>
+      <dt>Someone talks while you're deep in work</dt>
+      <dd>"Hold on, let me bookmark this." Hit the orange button, then give them your full attention.</dd>
+      <dt>You had an idea while they were talking</dt>
+      <dd>"One second, I need to write something down." Three words is enough.</dd>
+      <dt>You lost the thread mid-sentence</dt>
+      <dd>"Say that again? I lost the thread." Nobody minds. Pretending you didn't is what costs you.</dd>
+    </dl>
+  </details>
+
+  <p class="foot">One brain, one screen. Everything here stays in your Claude workspace.</p>
+</div>
+
+<div class="holdbar">
+  <button type="button" class="hold-btn" id="hold-btn">
+    <span class="hold-big">Hold that thought</span>
+    <span class="hold-sub">Someone's talking · I just had an idea</span>
+  </button>
+</div>
+
+<div class="backdrop" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <p class="bookmark" id="sheet-bookmark" hidden>Bookmarked: <b id="sheet-bookmark-text"></b></p>
+    <h2 id="sheet-title">What's the thought?</h2>
+    <textarea class="field" id="sheet-input" rows="3" placeholder="Three words is enough."></textarea>
+    <div class="row">
+      <button type="button" class="btn primary" id="sheet-save">Save it</button>
+      <button type="button" class="btn ghost" id="sheet-skip">No thought, just interrupted</button>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="sort" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sort-text">
+    <span class="eyebrow" id="sort-progress"></span>
+    <p class="sort-text" id="sort-text"></p>
+    <div class="sort-actions">
+      <button type="button" class="btn primary" data-sort data-act="now">Do it now</button>
+      <button type="button" class="btn" data-sort data-act="next">Next</button>
+      <button type="button" class="btn" data-sort data-act="later">Later</button>
+      <button type="button" class="btn ghost danger" data-sort data-act="gone">Let it go</button>
+    </div>
+    <p class="hint" id="sort-hint"></p>
+    <div class="row">
+      <button type="button" class="btn small ghost" id="sort-skip">Skip</button>
+      <button type="button" class="btn small ghost" id="sort-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const LS_KEY = 'hold-that-thought.items.v1';
+  const DAY = 86400000;
+
+  const state = {
+    mode: 'loading',   // loading | db | local | dberror
+    loaded: false,
+    pending: false,
+    items: new Map(),
+    card: null,        // { ids, i, mode }
+  };
+  let db = null;
+  const queued = [];
+  const chains = new Map();
+
+  // ---------- helpers ----------
+  const now = () => Date.now();
+  const newId = () => now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  const all = () => Array.from(state.items.values());
+  const byStatus = (s) => all().filter((i) => i.status === s);
+  const currentNow = () => byStatus('now')[0] || null;
+  const cmpNext = (a, b) => ((a.order || 0) - (b.order || 0)) || (a.updatedAt - b.updatedAt);
+  const short = (t, n = 40) => (t.length > n ? t.slice(0, n - 1) + '…' : t);
+  const fmtTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const isToday = (ms) => new Date(ms).toDateString() === new Date().toDateString();
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  function ago(ms) {
+    const m = Math.max(0, Math.round((now() - ms) / 60000));
+    if (m < 1) return 'just now';
+    if (m < 60) return m + ' min';
+    const h = Math.floor(m / 60), r = m % 60;
+    if (h < 24) return h + ' hr' + (r ? ' ' + r + ' min' : '');
+    return Math.floor(h / 24) + ' d';
+  }
+  function whenShort(ms) {
+    const d = now() - ms;
+    if (d < 60000) return 'now';
+    if (d < 3600000) return Math.round(d / 60000) + 'm';
+    if (isToday(ms)) return Math.round(d / 3600000) + 'h';
+    if (d < 7 * DAY) return new Date(ms).toLocaleDateString([], { weekday: 'short' });
+    return new Date(ms).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // ---------- storage: db when the viewer grants it, this browser otherwise ----------
+  function serial(id, fn) {
+    const prev = chains.get(id) || Promise.resolve();
+    const run = () => fn().catch(async (e) => {
+      if (e && e.code === 'unavailable') { await sleep(300 + Math.random() * 600); return fn(); }
+      throw e;
+    });
+    const p = prev.then(run).catch(onWriteError);
+    chains.set(id, p);
+    return p;
+  }
+  function docBody(item) { const b = Object.assign({}, item); delete b.id; return b; }
+  function onWriteError(e) {
+    const code = e && e.code;
+    if (code === 'quota_exceeded') toast('Storage is full. Open Done and clear old items.');
+    else if (code === 'resource_exhausted') toast('Too fast for the server. Give it a moment.');
+    else if (code === 'invalid_argument') { /* changed elsewhere; the next snapshot corrects the view */ }
+    else if (code === 'revoked' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') { state.mode = 'dberror'; render(); }
+    else toast('Could not save that. Check your connection and try again.');
+  }
+  function put(item) {
+    state.items.set(item.id, item);
+    let p;
+    if (state.mode === 'db') p = serial(item.id, () => db.doc('items/' + item.id).set(docBody(item)));
+    else if (state.mode === 'local') saveLocal();
+    else queued.push(() => put(item));
+    render();
+    return p;
+  }
+  function patch(id, partial) {
+    const cur = state.items.get(id);
+    if (!cur) return;
+    const delta = Object.assign({}, partial, { updatedAt: now() });
+    state.items.set(id, Object.assign({}, cur, delta));
+    let p;
+    if (state.mode === 'db') p = serial(id, () => db.doc('items/' + id).update(delta));
+    else if (state.mode === 'local') saveLocal();
+    else queued.push(() => patch(id, partial));
+    render();
+    return p;
+  }
+  function remove(id) {
+    state.items.delete(id);
+    let p;
+    if (state.mode === 'db') p = serial(id, () => db.doc('items/' + id).delete());
+    else if (state.mode === 'local') saveLocal();
+    else queued.push(() => remove(id));
+    render();
+    return p;
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      state.items = new Map(arr.filter((i) => i && i.id).map((i) => [i.id, i]));
+    } catch (e) { state.items = new Map(); }
+  }
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(all())); } catch (e) { /* private window or blocked storage */ } }
+  function flushQueue() { queued.splice(0).forEach((op) => op()); }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      if (window.claude && typeof window.claude.use === 'function') ns = await window.claude.use('db');
+    } catch (e) { ns = null; }
+    if (ns) {
+      db = ns;
+      state.mode = 'db';
+      flushQueue();
+      db.collection('items').orderBy('createdAt', 'desc').limit(1000).onSnapshot((snap) => {
+        const m = new Map();
+        snap.docs.forEach((d) => { if (d.exists) m.set(d.id, Object.assign({ id: d.id }, d.data())); });
+        state.items = m;
+        state.pending = snap.metadata.hasPendingWrites;
+        state.loaded = true;
+        render();
+      }, () => { state.mode = 'dberror'; render(); });
+    } else {
+      state.mode = 'local';
+      loadLocal();
+      flushQueue();
+      state.loaded = true;
+      render();
+    }
+  }
+
+  // ---------- actions ----------
+  function catchThought(text, source) {
+    text = (text || '').trim();
+    if (!text) return false;
+    const t = now();
+    put({ id: newId(), text, status: 'inbox', source: source || 'catch', createdAt: t, updatedAt: t, nextStep: '', holdAt: null, order: 0 });
+    return true;
+  }
+  function nextOrder(edge) {
+    const os = byStatus('next').map((i) => i.order || 0);
+    if (!os.length) return 0;
+    return edge === 'top' ? Math.min(...os) - 1 : Math.max(...os) + 1;
+  }
+  function setNow(id) {
+    const cur = currentNow();
+    if (cur && cur.id === id) return;
+    if (cur) {
+      patch(cur.id, { status: 'next', holdAt: null, order: nextOrder('top') });
+      toast('"' + short(cur.text) + '" moved to the top of Next.');
+    }
+    patch(id, { status: 'now', holdAt: null, startedAt: now() });
+  }
+  function moveTo(id, status, edge) {
+    const p = { status, holdAt: null };
+    if (status === 'next') p.order = nextOrder(edge || 'bottom');
+    if (status === 'done') p.doneAt = now();
+    patch(id, p);
+  }
+  function letGo(id) {
+    const it = state.items.get(id);
+    if (!it) return;
+    remove(id);
+    toast('Let go.', { label: 'Undo', fn: () => put(it) });
+  }
+  function pick() {
+    const next = byStatus('next').sort(cmpNext);
+    if (next.length) { setNow(next[0].id); return; }
+    openCard(byStatus('inbox').sort((a, b) => a.createdAt - b.createdAt).map((i) => i.id), 'sort');
+  }
+  async function clearOldDone() {
+    const stale = byStatus('done').filter((i) => now() - (i.doneAt || i.updatedAt) > 7 * DAY);
+    if (!stale.length) return;
+    toast('Clearing ' + stale.length + '…');
+    for (let i = 0; i < stale.length; i += 5) {
+      await Promise.all(stale.slice(i, i + 5).map((it) => remove(it.id)));
+    }
+    toast('Cleared ' + stale.length + '.');
+  }
+
+  // ---------- hold sheet ----------
+  function setModal(open) { document.body.classList.toggle('modal', open); }
+  function openHold() {
+    const cur = currentNow();
+    if (cur && !cur.holdAt) patch(cur.id, { holdAt: now() });
+    $('#sheet-bookmark').hidden = !cur;
+    if (cur) $('#sheet-bookmark-text').textContent = cur.text;
+    $('#sheet-input').value = '';
+    $('#sheet').hidden = false;
+    setModal(true);
+    setTimeout(() => $('#sheet-input').focus(), 30);
+  }
+  function closeHold() { $('#sheet').hidden = true; setModal(!!state.card); }
+  function saveHold() {
+    if (catchThought($('#sheet-input').value, 'hold')) toast("Caught. It's safe here.");
+    closeHold();
+  }
+
+  // ---------- one-card triage ----------
+  const STATUS_LABEL = { inbox: 'Caught', next: 'Next', later: 'Later', done: 'Done', now: 'Now' };
+  function openCard(ids, mode) {
+    if (!ids.length) { toast('Nothing to sort. The pile is clear.'); return; }
+    state.card = { ids, i: 0, mode };
+    $('#sort').hidden = false;
+    setModal(true);
+    renderCard();
+  }
+  function closeCard() { state.card = null; $('#sort').hidden = true; setModal(!$('#sheet').hidden); }
+  function renderCard() {
+    const c = state.card;
+    if (!c) return;
+    while (c.i < c.ids.length && !state.items.has(c.ids[c.i])) c.i++;
+    if (c.i >= c.ids.length) { closeCard(); if (c.mode === 'sort') toast('Sorted. The pile is clear.'); return; }
+    const it = state.items.get(c.ids[c.i]);
+    const many = c.ids.length > 1;
+    $('#sort-progress').textContent = many ? (c.i + 1) + ' of ' + c.ids.length : (STATUS_LABEL[it.status] || '');
+    $('#sort-text').textContent = it.text;
+    $('#sort-skip').hidden = !many;
+    document.querySelectorAll('#sort [data-sort]').forEach((b) => { b.hidden = b.dataset.act === it.status; });
+    const cur = currentNow();
+    $('#sort-hint').textContent = (cur && cur.id !== it.id) ? 'Your current Now moves to the top of Next.' : '';
+  }
+  function cardAct(act) {
+    const c = state.card;
+    if (!c) return;
+    const idx = c.i, id = c.ids[idx];
+    if (!id) return;
+    if (act === 'now') setNow(id);
+    else if (act === 'gone') letGo(id);
+    else moveTo(id, act);
+    if (state.card === c) { c.i = idx + 1; renderCard(); }
+  }
+
+  // ---------- render ----------
+  let lastNowId = null;
+  function render() {
+    renderNow(currentNow());
+
+    const inbox = byStatus('inbox').sort((a, b) => b.createdAt - a.createdAt);
+    $('#inbox-count').textContent = inbox.length;
+    const shown = inbox.slice(0, 6);
+    renderList($('#inbox-list'), shown, true);
+    $('#inbox-empty').hidden = inbox.length > 0;
+    $('#sort-btn').hidden = inbox.length === 0;
+    const rest = inbox.length - shown.length;
+    $('#inbox-more').hidden = rest <= 0;
+    if (rest > 0) $('#inbox-more').textContent = rest + ' more underneath. Sort one at a time and the pile stays small.';
+
+    const next = byStatus('next').sort(cmpNext);
+    $('#next-count').textContent = next.length;
+    renderList($('#next-list'), next);
+    $('#next-empty').hidden = next.length > 0;
+
+    const later = byStatus('later').sort((a, b) => b.updatedAt - a.updatedAt);
+    $('#later-count').textContent = later.length;
+    renderList($('#later-list'), later);
+    $('#later-empty').hidden = later.length > 0;
+
+    const done = byStatus('done').sort((a, b) => (b.doneAt || b.updatedAt) - (a.doneAt || a.updatedAt));
+    const today = done.filter((i) => isToday(i.doneAt || i.updatedAt));
+    $('#done-count').textContent = today.length;
+    renderList($('#done-list'), today);
+    $('#done-empty').hidden = today.length > 0;
+    const older = done.length - today.length;
+    $('#done-older').textContent = older ? older + ' finished on earlier days.' : '';
+    const stale = done.filter((i) => now() - (i.doneAt || i.updatedAt) > 7 * DAY);
+    $('#clear-done').hidden = stale.length === 0;
+    $('#clear-done').textContent = 'Clear ' + stale.length + ' done from more than a week ago';
+
+    $('#welcome').hidden = !(state.loaded && state.items.size === 0);
+    renderStatus();
+    if (state.card) renderCard();
+  }
+  function renderNow(cur) {
+    const empty = $('#now-empty'), active = $('#now-active');
+    if (!cur) {
+      empty.hidden = false; active.hidden = true; lastNowId = null;
+      const next = byStatus('next').sort(cmpNext), inbox = byStatus('inbox');
+      const btn = $('#pick-btn'), hint = $('#now-empty-hint');
+      if (next.length) { btn.hidden = false; btn.textContent = 'Start: ' + short(next[0].text, 48); hint.textContent = 'Nothing picked. The top of Next is waiting.'; }
+      else if (inbox.length) { btn.hidden = false; btn.textContent = 'Sort the pile and pick one'; hint.textContent = 'Nothing picked yet.'; }
+      else { btn.hidden = true; hint.textContent = 'Nothing picked yet. Catch a thought below.'; }
+      return;
+    }
+    empty.hidden = true; active.hidden = false;
+    const h = $('#now-text');
+    h.textContent = cur.text;
+    h.classList.toggle('long', cur.text.length > 70);
+    const inp = $('#next-step');
+    if (cur.id !== lastNowId || (document.activeElement !== inp && inp.value !== (cur.nextStep || ''))) inp.value = cur.nextStep || '';
+    lastNowId = cur.id;
+    $('#now-hold').hidden = !cur.holdAt;
+    if (cur.holdAt) { $('#hold-since').textContent = fmtTime(cur.holdAt); $('#hold-ago').textContent = ago(cur.holdAt); }
+  }
+  function renderList(ul, arr, showWhen) {
+    ul.replaceChildren(...arr.map((it) => {
+      const li = el('li');
+      const b = el('button', 'item');
+      b.type = 'button';
+      b.dataset.open = it.id;
+      const t = el('span', 'item-text');
+      if (it.source === 'hold') t.appendChild(el('span', 'chip', 'held'));
+      t.appendChild(document.createTextNode(it.text));
+      b.appendChild(t);
+      b.appendChild(el('span', 'item-when', showWhen ? whenShort(it.createdAt) : '›'));
+      li.appendChild(b);
+      return li;
+    }));
+  }
+  function renderStatus() {
+    const s = $('#status');
+    const m = {
+      loading: ['Connecting…', 'dot-wait'],
+      db: [state.pending ? 'Saving…' : 'Synced', state.pending ? 'dot-wait' : 'dot-ok'],
+      local: ['Saved on this device only', ''],
+      dberror: ['Sync paused. Reload to reconnect.', 'dot-bad'],
+    };
+    const [txt, cls] = m[state.mode] || m.loading;
+    s.textContent = txt;
+    s.className = 'status ' + cls;
+  }
+
+  // ---------- toast ----------
+  let toastTimer = 0;
+  function toast(msg, action) {
+    const t = $('#toast');
+    t.replaceChildren(el('span', null, msg));
+    if (action) {
+      const b = el('button', 'toast-act', action.label);
+      b.type = 'button';
+      b.onclick = () => { hideToast(); action.fn(); };
+      t.appendChild(b);
+    }
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, action ? 6000 : 2600);
+  }
+  function hideToast() { $('#toast').hidden = true; }
+
+  // ---------- wiring ----------
+  $('#catch-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const inp = $('#catch-input');
+    if (catchThought(inp.value, 'catch')) inp.value = '';
+    inp.focus();
+  });
+  let stepTimer = 0;
+  function commitStep() {
+    clearTimeout(stepTimer);
+    const cur = currentNow();
+    if (!cur) return;
+    const v = $('#next-step').value.trim();
+    if (v !== (cur.nextStep || '')) patch(cur.id, { nextStep: v });
+  }
+  $('#next-step').addEventListener('input', () => { clearTimeout(stepTimer); stepTimer = setTimeout(commitStep, 700); });
+  $('#next-step').addEventListener('change', commitStep);
+  $('#next-step').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commitStep(); e.target.blur(); } });
+  $('#now-done').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'done'); toast('Done. That counts.'); } };
+  $('#now-pause').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'next', 'top'); toast("Paused. It's at the top of Next."); } };
+  $('#now-later').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'later'); } };
+  $('#resume-btn').onclick = () => { const c = currentNow(); if (c) patch(c.id, { holdAt: null }); };
+  $('#pick-btn').onclick = pick;
+  $('#hold-btn').onclick = openHold;
+  $('#sheet-save').onclick = saveHold;
+  $('#sheet-skip').onclick = closeHold;
+  $('#sheet-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveHold(); } });
+  $('#sort-btn').onclick = () => openCard(byStatus('inbox').sort((a, b) => a.createdAt - b.createdAt).map((i) => i.id), 'sort');
+  $('#sort-skip').onclick = () => { const c = state.card; if (c) { c.i++; renderCard(); } };
+  $('#sort-close').onclick = closeCard;
+  $('#clear-done').onclick = clearOldDone;
+  document.addEventListener('click', (e) => {
+    const s = e.target.closest('[data-sort]');
+    if (s) { cardAct(s.dataset.act); return; }
+    const o = e.target.closest('[data-open]');
+    if (o) { openCard([o.dataset.open], 'one'); return; }
+    if (e.target.classList.contains('backdrop')) { if (e.target.id === 'sheet') closeHold(); else closeCard(); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeHold(); closeCard(); } });
+  setInterval(() => { const c = currentNow(); if (c && c.holdAt) $('#hold-ago').textContent = ago(c.holdAt); }, 30000);
+
+  render();
+  initStore();
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) $('#catch-input').focus();
+})();
+</script>
