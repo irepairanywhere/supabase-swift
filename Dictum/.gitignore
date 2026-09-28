@@ -1,0 +1,9 @@
+.build/
+build/
+DerivedData/
+Dictum.xcodeproj/
+*.xcworkspace/
+.swiftpm/
+Package.resolved
+DictumCore/.build/
+DictumCore/Package.resolved

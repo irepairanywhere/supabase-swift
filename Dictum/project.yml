@@ -1,0 +1,41 @@
+# XcodeGen spec – run `xcodegen generate` (brew install xcodegen) to get Dictum.xcodeproj.
+# Alternative to `make app` for people who prefer working in Xcode.
+name: Dictum
+options:
+  bundleIdPrefix: app.dictum
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+packages:
+  argmax-oss-swift:
+    url: https://github.com/argmaxinc/argmax-oss-swift.git
+    from: 1.1.0
+  DictumCore:
+    path: DictumCore
+targets:
+  Dictum:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Dictum
+    dependencies:
+      - package: argmax-oss-swift
+        product: WhisperKit
+      - package: DictumCore
+        product: DictumCore
+    entitlements:
+      path: Resources/Dictum.entitlements
+    settings:
+      base:
+        PRODUCT_NAME: Dictum
+        PRODUCT_BUNDLE_IDENTIFIER: app.dictum.macos
+        INFOPLIST_FILE: Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        ENABLE_HARDENED_RUNTIME: NO
+        ENABLE_APP_SANDBOX: NO
+        COMBINE_HIDPI_IMAGES: YES
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
