@@ -39,6 +39,7 @@ final class DictationController: ObservableObject {
   private var warmUpTask: Task<Void, Never>?
 
   private var pressStartedAt: Date?
+  private var lastTapAt: Date?
   private var stopOnRelease = false
   private var contextApp: AccessibilityBridge.FrontmostApp?
   private var commandSelection: String?
@@ -210,11 +211,20 @@ final class DictationController: ObservableObject {
       return
     }
     let held = Date().timeIntervalSince(pressStartedAt ?? Date())
-    if settings.data.tapTogglesHandsFree, held < 0.35 {
+    guard held < 0.35 else {
+      lastTapAt = nil
+      finishRecording()
+      return
+    }
+    // A quick tap: the second tap within half a second locks hands-free mode; a lone tap is ignored.
+    let now = Date()
+    if settings.data.tapTogglesHandsFree, let previousTap = lastTapAt, now.timeIntervalSince(previousTap) < 0.5 {
+      lastTapAt = nil
       state = .recording(mode: mode, handsFree: true)
       overlay.show(.listening(handsFree: true, mode: mode))
     } else {
-      finishRecording()
+      lastTapAt = now
+      cancelRecording()
     }
   }
 

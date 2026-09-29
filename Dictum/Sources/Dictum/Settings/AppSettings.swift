@@ -91,9 +91,9 @@ struct SettingsData: Codable, Equatable {
 
 @MainActor
 final class AppSettings: ObservableObject {
-  static let cloudKeyAccount = "cloud-transcription-api-key"
-  static let polishKeyAccount = "polish-api-key"
-  private static let storageKey = "app.dictum.settings.v1"
+  nonisolated static let cloudKeyAccount = "cloud-transcription-api-key"
+  nonisolated static let polishKeyAccount = "polish-api-key"
+  private nonisolated static let storageKey = "app.dictum.settings.v1"
 
   @Published var data: SettingsData {
     didSet { persist() }

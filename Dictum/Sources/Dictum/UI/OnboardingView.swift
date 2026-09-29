@@ -56,7 +56,7 @@ struct OnboardingView: View {
 
       VStack(alignment: .leading, spacing: 8) {
         HotkeyPicker(title: "Dictation key", binding: $settings.data.dictationHotkey)
-        Text("Try it now: click into any text field, hold \(settings.data.dictationHotkey.displayName), say something, release. A quick tap locks hands-free mode.")
+        Text("Try it now: click into any text field, hold \(settings.data.dictationHotkey.displayName), say something, release. Double-tap it to go hands-free, tap once more to stop.")
           .font(.caption)
           .foregroundStyle(.secondary)
         if settings.data.dictationHotkey == .fn {

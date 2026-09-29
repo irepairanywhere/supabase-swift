@@ -6,8 +6,8 @@ talk, let go: the cleaned-up text appears wherever your cursor is, in any app.
 - **Mac**: menu bar app, global shortcut, three speech engines. This document.
 - **iPhone**: a voice keyboard plus companion app. See [`iOS/README.md`](iOS/README.md).
 
-- **Hold-to-talk** with a global shortcut (default: Right ⌥, or Fn / any combo you like). Quick tap
-  locks hands-free mode; Esc cancels.
+- **Hold-to-talk** with a global shortcut (default: Right ⌥, or Fn / any combo you like). Double-tap
+  to go hands-free; Esc cancels.
 - **Three speech engines**, switchable from the menu bar:
   - *Apple Speech* (built in, zero setup, mostly on-device) – the default.
   - *Whisper on-device* via [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift): one download,

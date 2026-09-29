@@ -31,7 +31,7 @@ struct GeneralSettingsTab: View {
     Form {
       Section("Dictation shortcut") {
         HotkeyPicker(title: "Hold to dictate", binding: $settings.data.dictationHotkey)
-        Toggle("Quick tap locks hands-free mode (tap again to stop)", isOn: $settings.data.tapTogglesHandsFree)
+        Toggle("Double-tap locks hands-free mode (tap once more to stop)", isOn: $settings.data.tapTogglesHandsFree)
         Toggle("Cancel if another key is pressed right after the shortcut", isOn: $settings.data.cancelOnOtherKeys)
         if settings.data.dictationHotkey == .fn || (settings.data.commandModeEnabled && settings.data.commandHotkey == .fn) {
           HStack(alignment: .top) {

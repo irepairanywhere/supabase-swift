@@ -13,7 +13,7 @@ enum HotkeyKind: Hashable {
 @MainActor
 final class HotkeyMonitor {
   /// Stamped onto the ⌘V events Dictum posts itself so the tap ignores them.
-  static let syntheticEventMarker: Int64 = 0x4449_4354
+  nonisolated static let syntheticEventMarker: Int64 = 0x4449_4354
 
   var bindings: [HotkeyKind: HotkeyBinding] = [:]
   var onPress: ((HotkeyKind) -> Void)?
