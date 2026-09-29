@@ -8,6 +8,8 @@
 	<string>Dictum</string>
 	<key>CFBundleExecutable</key>
 	<string>Dictum</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>app.dictum.macos</string>
 	<key>CFBundleInfoDictionaryVersion</key>

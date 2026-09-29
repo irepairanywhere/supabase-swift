@@ -34,8 +34,12 @@ talk, let go: the cleaned-up text appears wherever your cursor is, in any app.
 ```bash
 cd Dictum
 make run          # builds build/Dictum.app in release mode and opens it
-make install      # copies it to /Applications
+make install      # copies it to /Applications, where it behaves like any other Mac app
 ```
+
+After `make install`, Dictum is a normal app: open it from Applications, Spotlight or Launchpad, and
+turn on "Launch at login" in Settings → General so it's always in your menu bar. Terminal is only
+needed to build it.
 
 The first build downloads WhisperKit and compiles everything; expect 3–6 minutes. Later builds are
 incremental.
