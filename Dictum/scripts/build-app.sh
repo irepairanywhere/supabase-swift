@@ -27,14 +27,17 @@ fi
 
 # UNIVERSAL=1 builds one binary that runs on both Apple Silicon and Intel Macs (roughly doubles
 # compile time). Without it, the app runs only on the kind of Mac that built it.
-ARCH_FLAGS=()
+# (Plain string, not an array: macOS ships bash 3.2, where an empty array trips `set -u`.)
+ARCH_FLAGS=""
 if [ "${UNIVERSAL:-0}" = "1" ]; then
-  ARCH_FLAGS=(--arch arm64 --arch x86_64)
+  ARCH_FLAGS="--arch arm64 --arch x86_64"
 fi
 
-echo "==> Building ($CONFIG${UNIVERSAL:+, universal})…"
-swift build -c "$CONFIG" --product "$APP_NAME" "${ARCH_FLAGS[@]}"
-BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" "${ARCH_FLAGS[@]}" --show-bin-path)"
+echo "==> Building ($CONFIG${ARCH_FLAGS:+, universal})…"
+# shellcheck disable=SC2086
+swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS
+# shellcheck disable=SC2086
+BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS --show-bin-path)"
 BIN="$BIN_DIR/$APP_NAME"
 [ -x "$BIN" ] || { echo "Build output not found at $BIN" >&2; exit 1; }
 
