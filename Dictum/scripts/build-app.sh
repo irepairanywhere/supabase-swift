@@ -4,6 +4,7 @@
 #
 #   ./scripts/build-app.sh                 # release build -> build/Dictum.app
 #   CONFIG=debug ./scripts/build-app.sh    # debug build
+#   UNIVERSAL=1 ./scripts/build-app.sh       # runs on Apple Silicon and Intel Macs
 #   CODESIGN_IDENTITY="Developer ID Application: You" ./scripts/build-app.sh
 #
 # Ad-hoc signing ("-") is the default. It works, but macOS forgets the Accessibility grant every
@@ -24,9 +25,16 @@ if ! command -v swift >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "==> Building ($CONFIG)…"
-swift build -c "$CONFIG" --product "$APP_NAME"
-BIN_DIR="$(swift build -c "$CONFIG" --show-bin-path)"
+# UNIVERSAL=1 builds one binary that runs on both Apple Silicon and Intel Macs (roughly doubles
+# compile time). Without it, the app runs only on the kind of Mac that built it.
+ARCH_FLAGS=()
+if [ "${UNIVERSAL:-0}" = "1" ]; then
+  ARCH_FLAGS=(--arch arm64 --arch x86_64)
+fi
+
+echo "==> Building ($CONFIG${UNIVERSAL:+, universal})…"
+swift build -c "$CONFIG" --product "$APP_NAME" "${ARCH_FLAGS[@]}"
+BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" "${ARCH_FLAGS[@]}" --show-bin-path)"
 BIN="$BIN_DIR/$APP_NAME"
 [ -x "$BIN" ] || { echo "Build output not found at $BIN" >&2; exit 1; }
 

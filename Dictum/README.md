@@ -60,6 +60,17 @@ Then click into any text field, hold **Right ⌥**, say something, release.
 Set System Settings → Keyboard → *Press 🌐 key to* → **Do Nothing**, otherwise macOS Dictation or the
 emoji picker opens as well. Then pick "Fn" in Settings → General.
 
+### Moving the app to another Mac
+
+```bash
+UNIVERSAL=1 make zip     # one build that runs on Apple Silicon and Intel; drop UNIVERSAL=1 if both Macs match
+```
+
+Share `build/Dictum.zip` (Google Drive, AirDrop). On the other Mac: unzip, move `Dictum.app` to
+Applications, then open it. Because the app is self-signed, macOS blocks the first launch: on macOS 15
+and newer, open System Settings → Privacy & Security, scroll down and click **Open Anyway**; on
+older versions, right-click the app and choose Open. Grant Microphone and Accessibility there too.
+
 ### Ad-hoc signing caveat
 
 `make app` signs the bundle ad-hoc. macOS ties the Accessibility grant to the code signature, so after
