@@ -49,7 +49,12 @@ swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS
 # shellcheck disable=SC2086
 BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS --show-bin-path)"
 BIN="$BIN_DIR/$APP_NAME"
-[ -x "$BIN" ] || { echo "Build output not found at $BIN" >&2; exit 1; }
+if [ ! -x "$BIN" ]; then
+  # Newer SwiftPM versions use a different build system whose output lands elsewhere under .build.
+  BIN="$(find .build -type f -perm +111 -name "$APP_NAME" -not -path "*/Intermediates*" 2>/dev/null | head -1 || true)"
+  [ -n "$BIN" ] && BIN_DIR="$(dirname "$BIN")"
+fi
+[ -n "$BIN" ] && [ -x "$BIN" ] || { echo "Build output not found under .build (expected $BIN_DIR/$APP_NAME)" >&2; exit 1; }
 
 echo "==> Assembling $APP…"
 rm -rf "$APP"
