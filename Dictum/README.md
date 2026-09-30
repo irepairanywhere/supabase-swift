@@ -27,7 +27,8 @@ talk, let go: the cleaned-up text appears wherever your cursor is, in any app.
 ## Requirements
 
 - macOS 14 Sonoma or newer (Apple Silicon recommended for the on-device Whisper engine).
-- Xcode 15.3+ or the Command Line Tools (`xcode-select --install`) for building.
+- Apple's Command Line Tools with Swift 6 or newer (`xcode-select --install`). The full Xcode is
+  not needed. The build script checks the Swift version and tells you how to update if it's too old.
 
 ## Build & run
 

@@ -21,7 +21,17 @@ OUT_DIR="build"
 APP="$OUT_DIR/$APP_NAME.app"
 
 if ! command -v swift >/dev/null 2>&1; then
-  echo "swift not found. Install Xcode (or the Command Line Tools: xcode-select --install) first." >&2
+  echo "==> swift not found. Install Apple's Command Line Tools first:  xcode-select --install" >&2
+  exit 1
+fi
+
+# The full Xcode is not needed; the Command Line Tools are enough. They must bring Swift 6 or newer.
+SWIFT_LINE="$(swift --version 2>&1 | grep -m1 -i 'swift version' || true)"
+echo "==> Using ${SWIFT_LINE:-an unknown Swift version}"
+SWIFT_MAJOR="$(printf '%s' "$SWIFT_LINE" | sed -nE 's/.*[Ss]wift version ([0-9]+)\..*/\1/p')"
+if [ -n "$SWIFT_MAJOR" ] && [ "$SWIFT_MAJOR" -lt 6 ]; then
+  echo "==> Swift 6 or newer is needed. Update the Command Line Tools with:" >&2
+  echo "==>   sudo rm -rf /Library/Developer/CommandLineTools && xcode-select --install" >&2
   exit 1
 fi
 
@@ -33,42 +43,11 @@ if [ "${UNIVERSAL:-0}" = "1" ]; then
   ARCH_FLAGS="--arch arm64 --arch x86_64"
 fi
 
-# Swift 6.2 / macOS 26 SDK: SwiftUI's @State and friends are compiler macros. Their plugin lives
-# in the platform directory, which `swift build` does not always put on the compiler's search
-# path ("plugin for module 'SwiftUIMacros' not found"). Find it and pass it explicitly.
-PLUGIN_FLAGS=""
-DEV_DIR="$(xcode-select -p 2>/dev/null || true)"
-PLATFORM_DIR="$(xcrun --show-sdk-platform-path 2>/dev/null || true)"
-SDK_DIR="$(xcrun --show-sdk-path 2>/dev/null || true)"
-for dir in \
-  "$PLATFORM_DIR/Developer/usr/lib/swift/host/plugins" \
-  "$SDK_DIR/usr/lib/swift/host/plugins" \
-  "$DEV_DIR/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins" \
-  "$DEV_DIR/usr/lib/swift/host/plugins" \
-  "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins"; do
-  if [ -n "$dir" ] && ls "$dir"/libSwiftUIMacros* >/dev/null 2>&1; then
-    PLUGIN_FLAGS="-Xswiftc -plugin-path -Xswiftc $dir"
-    break
-  fi
-done
-if [ -z "$PLUGIN_FLAGS" ] && [ -n "$DEV_DIR" ]; then
-  found="$(find "$DEV_DIR" -maxdepth 10 -name 'libSwiftUIMacros*' -print 2>/dev/null | head -1 || true)"
-  if [ -n "$found" ]; then
-    PLUGIN_FLAGS="-Xswiftc -plugin-path -Xswiftc $(dirname "$found")"
-  fi
-fi
-if [ -n "$PLUGIN_FLAGS" ]; then
-  echo "==> Using SwiftUI macro plugins from: ${PLUGIN_FLAGS##* }"
-else
-  echo "==> Note: SwiftUI macro plugin not found; if the build fails with 'SwiftUIMacros', install Xcode"
-  echo "    from the App Store and run: sudo xcode-select -s /Applications/Xcode.app"
-fi
-
 echo "==> Building ($CONFIG${ARCH_FLAGS:+, universal})…"
 # shellcheck disable=SC2086
-swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS $PLUGIN_FLAGS
+swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS
 # shellcheck disable=SC2086
-BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS $PLUGIN_FLAGS --show-bin-path)"
+BIN_DIR="$(swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS --show-bin-path)"
 BIN="$BIN_DIR/$APP_NAME"
 [ -x "$BIN" ] || { echo "Build output not found at $BIN" >&2; exit 1; }
 

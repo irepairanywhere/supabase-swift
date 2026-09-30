@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import DictumCore
 
@@ -22,7 +23,7 @@ final class OverlayController {
   let model = OverlayModel()
   var isEnabled = true
 
-  private var panel: OverlayPanel?
+  private var panel: NSPanel?
   private var hideTask: Task<Void, Never>?
 
   func show(_ phase: OverlayPhase) {
@@ -37,7 +38,10 @@ final class OverlayController {
 
   func hide(after delay: TimeInterval = 0) {
     hideTask?.cancel()
-    guard delay > 0 else { fadeOut(); return }
+    guard delay > 0 else {
+      fadeOut()
+      return
+    }
     hideTask = Task { [weak self] in
       try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
       guard !Task.isCancelled else { return }
@@ -56,12 +60,23 @@ final class OverlayController {
     model.levels = Array(repeating: 0, count: model.levels.count)
   }
 
-  private func ensurePanel() -> OverlayPanel {
+  private func ensurePanel() -> NSPanel {
     if let panel { return panel }
     let panel = OverlayPanel(contentRect: NSRect(x: 0, y: 0, width: 300, height: 64),
                              styleMask: [.borderless, .nonactivatingPanel],
-                             backing: .buffered, defer: false)
-    let hosting = NSHostingView(rootView: OverlayView(model: model))
+                             backing: .buffered,
+                             defer: false)
+    panel.isFloatingPanel = true
+    panel.level = .statusBar
+    panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+    panel.isOpaque = false
+    panel.backgroundColor = .clear
+    panel.hasShadow = false
+    panel.ignoresMouseEvents = true
+    panel.hidesOnDeactivate = false
+    panel.isMovable = false
+    panel.animationBehavior = .none
+    let hosting = NSHostingView(rootView: OverlayView().environmentObject(model))
     hosting.frame = NSRect(x: 0, y: 0, width: 300, height: 64)
     panel.contentView = hosting
     self.panel = panel
@@ -78,78 +93,69 @@ final class OverlayController {
 
   private func fadeOut() {
     guard let panel, panel.isVisible else { return }
-    NSAnimationContext.runAnimationGroup({ context in
-      context.duration = 0.18
-      panel.animator().alphaValue = 0
-    }, completionHandler: {
-      panel.orderOut(nil)
-    })
+    panel.orderOut(nil)
   }
 }
 
+/// A panel that never becomes key or main, so it can't steal focus from the app being dictated into.
+/// It declares no initializers, so it inherits all of NSPanel's.
 final class OverlayPanel: NSPanel {
-  override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask,
-                backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
-    super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
-    isFloatingPanel = true
-    level = .statusBar
-    collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
-    isOpaque = false
-    backgroundColor = .clear
-    hasShadow = false
-    ignoresMouseEvents = true
-    hidesOnDeactivate = false
-    isMovable = false
-    animationBehavior = .none
-  }
-
   override var canBecomeKey: Bool { false }
   override var canBecomeMain: Bool { false }
 }
 
+@MainActor
 struct OverlayView: View {
-  @ObservedObject var model: OverlayModel
+  @EnvironmentObject var model: OverlayModel
 
   var body: some View {
     HStack(spacing: 10) {
-      switch model.phase {
-      case .listening(let handsFree, let mode):
-        Circle()
-          .fill(mode == .command ? Color.purple : Color.red)
-          .frame(width: 9, height: 9)
-        WaveformView(levels: model.levels)
-          .frame(width: 80, height: 22)
-        Text(mode == .command ? "Command…" : (handsFree ? "Listening · tap to stop" : "Listening…"))
-      case .processing(let message):
-        ProgressView().controlSize(.small)
-        Text(message)
-      case .success:
-        Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-        Text("Inserted")
-      case .error(let message):
-        Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.yellow)
-        Text(message).lineLimit(2)
-      }
+      phaseContent
     }
     .font(.system(size: 13, weight: .medium))
     .padding(.horizontal, 16)
     .padding(.vertical, 9)
     .background(.ultraThinMaterial, in: Capsule())
-    .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12)))
-    .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
+    .overlay {
+      Capsule().strokeBorder(Color.primary.opacity(0.12))
+    }
+    .shadow(color: Color.black.opacity(0.25), radius: 10, x: 0, y: 4)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+
+  @ViewBuilder
+  var phaseContent: some View {
+    switch model.phase {
+    case .listening(let handsFree, let mode):
+      Circle()
+        .fill(mode == .command ? Color.purple : Color.red)
+        .frame(width: 9, height: 9)
+      WaveformView(levels: model.levels)
+        .frame(width: 80, height: 22)
+      Text(mode == .command ? "Command…" : (handsFree ? "Listening · tap to stop" : "Listening…"))
+    case .processing(let message):
+      ProgressView().controlSize(.small)
+      Text(message)
+    case .success:
+      Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.green)
+      Text("Inserted")
+    case .error(let message):
+      Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Color.yellow)
+      Text(message).lineLimit(2)
+    }
   }
 }
 
+@MainActor
 struct WaveformView: View {
   let levels: [Float]
 
   var body: some View {
     HStack(alignment: .center, spacing: 2) {
-      ForEach(Array(levels.enumerated()), id: \.offset) { _, level in
+      ForEach(levels.indices, id: \.self) { index in
         RoundedRectangle(cornerRadius: 1.5)
           .fill(Color.accentColor)
-          .frame(width: 3, height: max(3, CGFloat(level) * 22))
+          .frame(width: 3, height: max(3, CGFloat(levels[index]) * 22))
       }
     }
     .animation(.linear(duration: 0.06), value: levels)

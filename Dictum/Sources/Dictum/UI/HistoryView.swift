@@ -2,15 +2,24 @@ import AppKit
 import SwiftUI
 import DictumCore
 
+@MainActor
 struct HistoryView: View {
   @EnvironmentObject var history: HistoryStore
-  @State private var search = ""
+  @EnvironmentObject var viewState: HistoryViewState
 
-  private var filtered: [HistoryEntry] {
-    guard !search.isEmpty else { return history.entries }
-    return history.entries.filter {
-      $0.finalText.localizedCaseInsensitiveContains(search) || ($0.appName ?? "").localizedCaseInsensitiveContains(search)
+  var filtered: [HistoryEntry] {
+    let query = viewState.search.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !query.isEmpty else { return history.entries }
+    return history.entries.filter { entry in
+      entry.finalText.localizedCaseInsensitiveContains(query)
+        || (entry.appName ?? "").localizedCaseInsensitiveContains(query)
     }
+  }
+
+  var emptyTitle: String { history.entries.isEmpty ? "No dictations yet" : "No matches" }
+
+  var emptyMessage: String {
+    history.entries.isEmpty ? "Hold your dictation key in any text field and start talking." : "Try another search."
   }
 
   var body: some View {
@@ -20,7 +29,7 @@ struct HistoryView: View {
         StatsBadge(title: "Words", value: "\(history.stats.words)")
         StatsBadge(title: "Time saved", value: "\(Int(history.stats.estimatedMinutesSaved)) min")
         Spacer()
-        TextField("Search", text: $search)
+        TextField("Search", text: $viewState.search)
           .textFieldStyle(.roundedBorder)
           .frame(width: 200)
         Button("Clear All", role: .destructive) { history.clear() }
@@ -29,14 +38,14 @@ struct HistoryView: View {
       .padding()
       Divider()
       if filtered.isEmpty {
-        ContentUnavailableView(
-          history.entries.isEmpty ? "No dictations yet" : "No matches",
-          systemImage: "waveform",
-          description: Text(history.entries.isEmpty ? "Hold your dictation key in any text field and start talking." : "Try another search."))
+        EmptyStateView(title: emptyTitle, message: emptyMessage)
       } else {
         List {
           ForEach(filtered) { entry in
-            HistoryRow(entry: entry) { history.remove(ids: [entry.id]) }
+            HistoryRow(entry: entry,
+                       copied: viewState.copiedID == entry.id,
+                       onCopy: { viewState.copyToClipboard(entry) },
+                       onDelete: { history.remove(ids: [entry.id]) })
           }
         }
         .listStyle(.inset)
@@ -46,7 +55,8 @@ struct HistoryView: View {
   }
 }
 
-private struct StatsBadge: View {
+@MainActor
+struct StatsBadge: View {
   let title: String
   let value: String
 
@@ -58,34 +68,51 @@ private struct StatsBadge: View {
   }
 }
 
-private struct HistoryRow: View {
+@MainActor
+struct EmptyStateView: View {
+  let title: String
+  let message: String
+
+  var body: some View {
+    VStack(spacing: 8) {
+      Image(systemName: "waveform")
+        .font(.system(size: 36))
+        .foregroundStyle(.secondary)
+      Text(title).font(.title3.weight(.semibold))
+      Text(message).foregroundStyle(.secondary)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+}
+
+@MainActor
+struct HistoryRow: View {
   let entry: HistoryEntry
+  let copied: Bool
+  let onCopy: () -> Void
   let onDelete: () -> Void
-  @State private var copied = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       HStack {
         Text(entry.date, format: .dateTime.month(.abbreviated).day().hour().minute())
-        if let app = entry.appName { Text("· \(app)") }
+        if let app = entry.appName {
+          Text("· \(app)")
+        }
         Text("· \(Int(entry.durationSeconds.rounded()))s · \(entry.wordCount) words")
         if entry.mode == .command {
-          Text("command").padding(.horizontal, 6).padding(.vertical, 1)
+          Text("command")
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
             .background(Color.purple.opacity(0.2), in: Capsule())
         }
         Spacer()
-        Button(copied ? "Copied" : "Copy") {
-          NSPasteboard.general.clearContents()
-          NSPasteboard.general.setString(entry.finalText, forType: .string)
-          copied = true
-          Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
-            copied = false
-          }
+        Button(copied ? "Copied" : "Copy", action: onCopy)
+          .buttonStyle(.borderless)
+        Button(action: onDelete) {
+          Image(systemName: "trash")
         }
         .buttonStyle(.borderless)
-        Button(role: .destructive, action: onDelete) { Image(systemName: "trash") }
-          .buttonStyle(.borderless)
       }
       .font(.caption)
       .foregroundStyle(.secondary)

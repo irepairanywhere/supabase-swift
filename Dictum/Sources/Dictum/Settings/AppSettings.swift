@@ -91,9 +91,7 @@ struct SettingsData: Codable, Equatable {
 
 @MainActor
 final class AppSettings: ObservableObject {
-  nonisolated static let cloudKeyAccount = "cloud-transcription-api-key"
-  nonisolated static let polishKeyAccount = "polish-api-key"
-  private nonisolated static let storageKey = "app.dictum.settings.v1"
+  private static let storageKey = "app.dictum.settings.v1"
 
   @Published var data: SettingsData {
     didSet { persist() }
@@ -117,6 +115,42 @@ final class AppSettings: ObservableObject {
   }
 
   // Keys are read on demand so they never sit in memory longer than needed.
-  var cloudAPIKey: String? { Keychain.get(Self.cloudKeyAccount) }
-  var polishAPIKey: String? { Keychain.get(Self.polishKeyAccount) }
+  var cloudAPIKey: String? { Keychain.get(KeychainAccount.cloudTranscription) }
+  var polishAPIKey: String? { Keychain.get(KeychainAccount.polish) }
+}
+
+/// Keychain account names for the API keys.
+enum KeychainAccount {
+  static let cloudTranscription = "cloud-transcription-api-key"
+  static let polish = "polish-api-key"
+}
+
+extension AppSettings {
+  /// Picking a transcription preset also fills in its server URL and default model.
+  var cloudPresetID: String {
+    get { data.cloudPresetID }
+    set {
+      var updated = data
+      updated.cloudPresetID = newValue
+      if let preset = ProviderPreset.transcriptionPreset(newValue) {
+        updated.cloudBaseURL = preset.baseURL
+        updated.cloudModel = preset.defaultModel
+      }
+      data = updated
+    }
+  }
+
+  /// Picking a chat preset also fills in its server URL and default model ("Custom" keeps them).
+  var polishPresetID: String {
+    get { data.polishPresetID }
+    set {
+      var updated = data
+      updated.polishPresetID = newValue
+      if newValue != "custom", let preset = ProviderPreset.chatPreset(newValue) {
+        updated.polishBaseURL = preset.baseURL
+        updated.polishModel = preset.defaultModel
+      }
+      data = updated
+    }
+  }
 }

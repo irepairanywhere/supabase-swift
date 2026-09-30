@@ -48,7 +48,9 @@ final class WhisperKitEngine: TranscriptionEngine {
       let folder = try await ensureDownloaded(variant: variant, status: status)
       try Task.checkCancellation()
       status("Loading \(Self.displayName(variant))…")
-      let config = WhisperKitConfig(modelFolder: folder.path,
+      let config = WhisperKitConfig(downloadBase: modelsDirectory,
+                                    modelFolder: folder.path,
+                                    tokenizerFolder: modelsDirectory,
                                     verbose: false,
                                     logLevel: .none,
                                     prewarm: true,

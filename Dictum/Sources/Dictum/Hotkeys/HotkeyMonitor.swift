@@ -2,6 +2,11 @@ import AppKit
 import CoreGraphics
 import DictumCore
 
+/// Stamped onto the ⌘V events Dictum posts itself so the event tap ignores them.
+enum SyntheticEvent {
+  static let marker: Int64 = 0x4449_4354
+}
+
 enum HotkeyKind: Hashable {
   case dictation
   case command
@@ -12,9 +17,6 @@ enum HotkeyKind: Hashable {
 /// detected on keyDown/keyUp and swallowed so they don't reach the frontmost app.
 @MainActor
 final class HotkeyMonitor {
-  /// Stamped onto the ⌘V events Dictum posts itself so the tap ignores them.
-  nonisolated static let syntheticEventMarker: Int64 = 0x4449_4354
-
   var bindings: [HotkeyKind: HotkeyBinding] = [:]
   var onPress: ((HotkeyKind) -> Void)?
   var onRelease: ((HotkeyKind) -> Void)?
@@ -22,6 +24,11 @@ final class HotkeyMonitor {
   var onOtherKeyDown: ((UInt16) -> Void)?
 
   private(set) var isRunning = false
+
+  /// When true every event passes through untouched (used while recording a new shortcut).
+  var isSuspended = false {
+    didSet { if isSuspended { pressed.removeAll() } }
+  }
   private var tap: CFMachPort?
   private var runLoopSource: CFRunLoopSource?
   private var pressed: Set<HotkeyKind> = []
@@ -74,7 +81,7 @@ final class HotkeyMonitor {
       if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
       return false
     }
-    if event.getIntegerValueField(.eventSourceUserData) == Self.syntheticEventMarker {
+    if isSuspended || event.getIntegerValueField(.eventSourceUserData) == SyntheticEvent.marker {
       return false
     }
 

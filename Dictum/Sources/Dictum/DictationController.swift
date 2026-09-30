@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import Speech
 import DictumCore
 
 /// The brain: hotkey → record → transcribe → clean → (polish) → insert → remember.
@@ -20,6 +21,7 @@ final class DictationController: ObservableObject {
   @Published private(set) var hotkeysActive = false
   @Published private(set) var accessibilityGranted = Permissions.accessibilityGranted
   @Published private(set) var microphoneGranted = Permissions.microphoneGranted
+  @Published private(set) var speechStatus: SFSpeechRecognizerAuthorizationStatus = Permissions.speechStatus
 
   let settings: AppSettings
   let history: HistoryStore
@@ -60,6 +62,18 @@ final class DictationController: ObservableObject {
   var isRecording: Bool {
     if case .recording = state { return true }
     return false
+  }
+
+  /// While true (a new shortcut is being recorded in Settings) the global hotkeys are ignored.
+  var hotkeysSuspended: Bool {
+    get { hotkeys.isSuspended }
+    set { hotkeys.isSuspended = newValue }
+  }
+
+  /// The last error, shown in the menu only while idle.
+  var visibleLastError: String? {
+    if case .idle = state { return lastError }
+    return nil
   }
 
   var isProcessing: Bool {
@@ -104,6 +118,8 @@ final class DictationController: ObservableObject {
     let microphone = Permissions.microphoneGranted
     if accessibility != accessibilityGranted { accessibilityGranted = accessibility }
     if microphone != microphoneGranted { microphoneGranted = microphone }
+    let speech = Permissions.speechStatus
+    if speech != speechStatus { speechStatus = speech }
     if accessibility, !hotkeys.isRunning {
       hotkeysActive = hotkeys.start()
     } else if !accessibility, hotkeys.isRunning {
@@ -116,6 +132,13 @@ final class DictationController: ObservableObject {
     Task {
       let granted = await Permissions.requestMicrophone()
       microphoneGranted = granted
+    }
+  }
+
+  func requestSpeechAccess() {
+    Task {
+      let status = await Permissions.requestSpeech()
+      speechStatus = status
     }
   }
 
@@ -281,6 +304,7 @@ final class DictationController: ObservableObject {
       return
     }
     errorResetTask?.cancel()
+    lastError = nil
     commandSelection = selection
     contextApp = AccessibilityBridge.frontmostApp()
     pressStartedAt = Date()

@@ -6,17 +6,14 @@ struct DictumApp: App {
 
   var body: some Scene {
     MenuBarExtra {
-      MenuBarView(controller: appDelegate.controller, settings: appDelegate.settings, history: appDelegate.history)
+      MenuBarView()
+        .environmentObject(appDelegate.controller)
+        .environmentObject(appDelegate.settings)
+        .environmentObject(appDelegate.history)
     } label: {
-      MenuBarLabel(controller: appDelegate.controller)
+      MenuBarLabel()
+        .environmentObject(appDelegate.controller)
     }
     .menuBarExtraStyle(.menu)
-
-    Settings {
-      SettingsView()
-        .environmentObject(appDelegate.settings)
-        .environmentObject(appDelegate.controller)
-        .environmentObject(appDelegate.history)
-    }
   }
 }

@@ -1,14 +1,13 @@
+import AppKit
 import SwiftUI
 import DictumCore
 
+/// The menu bar icon. It changes while recording or working.
+@MainActor
 struct MenuBarLabel: View {
-  @ObservedObject var controller: DictationController
+  @EnvironmentObject var controller: DictationController
 
-  var body: some View {
-    Image(systemName: iconName)
-  }
-
-  private var iconName: String {
+  var iconName: String {
     switch controller.state {
     case .idle: return controller.accessibilityGranted ? "waveform" : "waveform.slash"
     case .recording: return "waveform.circle.fill"
@@ -16,13 +15,18 @@ struct MenuBarLabel: View {
     case .error: return "exclamationmark.circle"
     }
   }
+
+  var body: some View {
+    Image(systemName: iconName)
+  }
 }
 
+/// The menu that opens from the menu bar icon.
+@MainActor
 struct MenuBarView: View {
-  @ObservedObject var controller: DictationController
-  @ObservedObject var settings: AppSettings
-  @ObservedObject var history: HistoryStore
-  @Environment(\.openSettings) private var openSettings
+  @EnvironmentObject var controller: DictationController
+  @EnvironmentObject var settings: AppSettings
+  @EnvironmentObject var history: HistoryStore
 
   var body: some View {
     Group {
@@ -30,7 +34,7 @@ struct MenuBarView: View {
       if !controller.engineStatus.isEmpty {
         Text(controller.engineStatus)
       }
-      if let error = controller.lastError, case .idle = controller.state {
+      if let error = controller.visibleLastError {
         Text("Last error: \(error)")
       }
       Divider()
@@ -50,17 +54,10 @@ struct MenuBarView: View {
     }
     Group {
       Divider()
-      Button("Settings…") {
-        WindowManager.activateApp()
-        openSettings()
-      }
-      .keyboardShortcut(",")
-      Button("History… (\(history.entries.count))") {
-        WindowManager.shared.showHistory(history: history)
-      }
-      Button("Setup & permissions…") {
-        WindowManager.shared.showOnboarding(controller: controller, settings: settings)
-      }
+      Button("Settings…") { WindowManager.shared.showSettings() }
+        .keyboardShortcut(",")
+      Button("History… (\(history.entries.count))") { WindowManager.shared.showHistory() }
+      Button("Setup & permissions…") { WindowManager.shared.showOnboarding() }
       Divider()
       Button("Quit Dictum") { NSApp.terminate(nil) }
         .keyboardShortcut("q")

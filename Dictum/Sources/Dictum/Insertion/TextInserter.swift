@@ -41,7 +41,7 @@ final class TextInserter {
     let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false)
     for event in [keyDown, keyUp] {
       event?.flags = .maskCommand
-      event?.setIntegerValueField(.eventSourceUserData, value: HotkeyMonitor.syntheticEventMarker)
+      event?.setIntegerValueField(.eventSourceUserData, value: SyntheticEvent.marker)
     }
     keyDown?.post(tap: .cghidEventTap)
     keyUp?.post(tap: .cghidEventTap)
