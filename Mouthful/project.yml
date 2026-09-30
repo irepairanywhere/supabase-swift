@@ -1,0 +1,46 @@
+# XcodeGen spec – run `make xcodeproj` to get Mouthful.xcodeproj.
+# Alternative to `make app` for people who prefer working in Xcode.
+name: Mouthful
+options:
+  bundleIdPrefix: com.rocketlaunchmedia
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+packages:
+  argmax-oss-swift:
+    url: https://github.com/argmaxinc/argmax-oss-swift.git
+    from: 1.1.0
+  MouthfulCore:
+    path: MouthfulCore
+targets:
+  Mouthful:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Mouthful
+    dependencies:
+      - package: argmax-oss-swift
+        product: WhisperKit
+      - package: MouthfulCore
+        product: MouthfulCore
+    # Keep in sync with Resources/Mouthful.entitlements: XcodeGen rewrites that file from these.
+    entitlements:
+      path: Resources/Mouthful.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.device.audio-input: true
+        com.apple.security.cs.allow-unsigned-executable-memory: false
+    settings:
+      base:
+        PRODUCT_NAME: Mouthful
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocketlaunchmedia.mouthful
+        INFOPLIST_FILE: Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        ENABLE_HARDENED_RUNTIME: NO
+        ENABLE_APP_SANDBOX: NO
+        COMBINE_HIDPI_IMAGES: YES
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
