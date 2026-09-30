@@ -23,8 +23,13 @@ targets:
         product: WhisperKit
       - package: MouthfulCore
         product: MouthfulCore
+    # Keep in sync with Resources/Mouthful.entitlements: XcodeGen rewrites that file from these.
     entitlements:
       path: Resources/Mouthful.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.device.audio-input: true
+        com.apple.security.cs.allow-unsigned-executable-memory: false
     settings:
       base:
         PRODUCT_NAME: Mouthful

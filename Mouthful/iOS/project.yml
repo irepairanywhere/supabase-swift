@@ -30,8 +30,13 @@ targets:
         product: MouthfulCore
       - target: MouthfulKeyboard
         embed: true
+    # XcodeGen regenerates entitlements files from `properties` (an empty file without them),
+    # so the App Group must be listed here, not only in the .entitlements file.
     entitlements:
       path: App/MouthfulMobile.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.rocketlaunchmedia.mouthful
     settings:
       base:
         PRODUCT_NAME: Mouthful
@@ -51,6 +56,9 @@ targets:
         product: MouthfulCore
     entitlements:
       path: Keyboard/MouthfulKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.rocketlaunchmedia.mouthful
     settings:
       base:
         PRODUCT_NAME: MouthfulKeyboard
