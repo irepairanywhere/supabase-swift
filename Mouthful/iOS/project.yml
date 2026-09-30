@@ -1,0 +1,63 @@
+# XcodeGen spec for the iPhone app + keyboard extension.
+#   make iphone            (from the Mouthful folder; fetches XcodeGen itself if needed)
+#   or by hand: cd Mouthful/iOS && xcodegen generate && open MouthfulMobile.xcodeproj
+# Then pick your team under Signing & Capabilities for BOTH targets (a free Apple ID works).
+name: MouthfulMobile
+options:
+  bundleIdPrefix: com.rocketlaunchmedia
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+packages:
+  MouthfulCore:
+    path: ../MouthfulCore
+targets:
+  MouthfulMobile:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Shared
+    dependencies:
+      - package: MouthfulCore
+        product: MouthfulCore
+      - target: MouthfulKeyboard
+        embed: true
+    entitlements:
+      path: App/MouthfulMobile.entitlements
+    settings:
+      base:
+        PRODUCT_NAME: Mouthful
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocketlaunchmedia.mouthful.ios
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+  MouthfulKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Keyboard
+      - path: Shared
+    dependencies:
+      - package: MouthfulCore
+        product: MouthfulCore
+    entitlements:
+      path: Keyboard/MouthfulKeyboard.entitlements
+    settings:
+      base:
+        PRODUCT_NAME: MouthfulKeyboard
+        PRODUCT_BUNDLE_IDENTIFIER: com.rocketlaunchmedia.mouthful.ios.keyboard
+        INFOPLIST_FILE: Keyboard/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"

@@ -1,0 +1,13 @@
+.build/
+build/
+.tools/
+DerivedData/
+Mouthful.xcodeproj/
+*.xcworkspace/
+.swiftpm/
+Package.resolved
+MouthfulCore/.build/
+MouthfulCore/Package.resolved
+iOS/MouthfulMobile.xcodeproj/
+iOS/build/
+iOS/DerivedData/
