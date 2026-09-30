@@ -43,7 +43,7 @@ if [ "${UNIVERSAL:-0}" = "1" ]; then
   ARCH_FLAGS="--arch arm64 --arch x86_64"
 fi
 
-echo "==> Building ($CONFIG${ARCH_FLAGS:+, universal})…"
+echo "==> Building ($CONFIG${ARCH_FLAGS:+, universal})..."
 # shellcheck disable=SC2086
 swift build -c "$CONFIG" --product "$APP_NAME" $ARCH_FLAGS
 # shellcheck disable=SC2086
@@ -56,7 +56,7 @@ if [ ! -x "$BIN" ]; then
 fi
 [ -n "$BIN" ] && [ -x "$BIN" ] || { echo "Build output not found under .build (expected $BIN_DIR/$APP_NAME)" >&2; exit 1; }
 
-echo "==> Assembling $APP…"
+echo "==> Assembling ${APP}..."
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/$APP_NAME"
@@ -83,7 +83,7 @@ for bundle in "$BIN_DIR"/*.bundle; do
 done
 shopt -u nullglob
 
-echo "==> Signing ($IDENTITY)…"
+echo "==> Signing ($IDENTITY)..."
 codesign --force --deep --sign "$IDENTITY" --entitlements Resources/Dictum.entitlements "$APP"
 codesign --verify --verbose=1 "$APP" >/dev/null
 
