@@ -10,17 +10,20 @@
     --ink: #172029;
     --muted: #5E6B79;
     --line: #D8DEE6;
+    --line-strong: #B4BFCC;
     --accent: #2C4F82;
     --accent-ink: #FFFFFF;
     --accent-soft: #E3EAF5;
     --hold: #F08A00;
     --hold-ink: #1C1200;
-    --hold-soft: #FFF0D6;
+    --hold-soft: #FFEBCB;
     --hold-text: #7A4400;
+    --hold-glow: rgba(240, 138, 0, .32);
     --good: #2E9C44;
     --good-ink: #FFFFFF;
     --danger: #B93A2C;
     --focus: #2C4F82;
+    --scrim: rgba(10, 14, 20, .5);
     --shadow: 0 1px 2px rgba(23, 32, 41, .06), 0 10px 28px rgba(23, 32, 41, .08);
     --r: 14px;
     --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -35,17 +38,20 @@
       --ink: #E8EDF3;
       --muted: #97A3B2;
       --line: #2A3441;
+      --line-strong: #3C4858;
       --accent: #8FB1E8;
       --accent-ink: #0B1421;
       --accent-soft: #1C2A40;
       --hold: #FFA337;
       --hold-ink: #1C1200;
-      --hold-soft: #3B2A0E;
+      --hold-soft: #3A2A10;
       --hold-text: #FFC98A;
+      --hold-glow: rgba(255, 163, 55, .22);
       --good: #5BC56E;
       --good-ink: #08200D;
       --danger: #E9705C;
       --focus: #8FB1E8;
+      --scrim: rgba(0, 0, 0, .62);
       --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 10px 28px rgba(0, 0, 0, .35);
     }
   }
@@ -57,22 +63,25 @@
     --ink: #E8EDF3;
     --muted: #97A3B2;
     --line: #2A3441;
+    --line-strong: #3C4858;
     --accent: #8FB1E8;
     --accent-ink: #0B1421;
     --accent-soft: #1C2A40;
     --hold: #FFA337;
     --hold-ink: #1C1200;
-    --hold-soft: #3B2A0E;
+    --hold-soft: #3A2A10;
     --hold-text: #FFC98A;
+    --hold-glow: rgba(255, 163, 55, .22);
     --good: #5BC56E;
     --good-ink: #08200D;
     --danger: #E9705C;
     --focus: #8FB1E8;
+    --scrim: rgba(0, 0, 0, .62);
     --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 10px 28px rgba(0, 0, 0, .35);
   }
 
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
   body {
     margin: 0;
     background: var(--bg);
@@ -81,24 +90,23 @@
     font-size: 16px;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
   body.modal { overflow: hidden; }
   button, input, textarea { font: inherit; color: inherit; }
-  button { cursor: pointer; }
+  button, label[role="button"] { cursor: pointer; }
   :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
+  .vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  .wrap {
-    max-width: 560px;
-    margin: 0 auto;
-    padding-inline: 16px;
-    padding-block: 10px calc(112px + env(safe-area-inset-bottom, 0px));
-    display: grid;
-    gap: 12px;
-  }
-  .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 4px; }
+  .top, .wrap { max-width: 560px; margin-inline: auto; padding-inline: 16px; }
+  body[data-tab="saved"] .top, body[data-tab="saved"] .wrap { max-width: 1040px; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-block: 12px 6px; }
+  .wrap { padding-block: 6px calc(118px + env(safe-area-inset-bottom, 0px)); }
+  .tab { display: grid; gap: 14px; }
   .brand { font-family: var(--display); font-weight: 800; font-size: 18px; letter-spacing: -.01em; margin: 0; }
   .status { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
@@ -111,331 +119,354 @@
   .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; display: block; }
   .now .eyebrow { color: var(--accent); }
   h1, h2 { text-wrap: balance; }
-  .now-text {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: clamp(22px, 6vw, 30px);
-    line-height: 1.15;
-    letter-spacing: -.01em;
-    margin: 0 0 12px;
-    overflow-wrap: anywhere;
-  }
-  .now-text.long { font-size: clamp(18px, 4.5vw, 22px); line-height: 1.3; }
-  .now-text.muted { color: var(--muted); font-weight: 600; font-size: 20px; }
-  .next-step { display: grid; gap: 4px; margin-bottom: 12px; }
-  .next-step span { font-size: 12px; font-weight: 600; color: var(--muted); }
-  .field {
-    width: 100%;
-    border: 1px solid var(--line);
-    background: var(--surface-2);
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 16px;
-    line-height: 1.4;
-  }
+  .now-text { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 6vw, 28px); line-height: 1.15; letter-spacing: -.01em; margin: 0 0 12px; overflow-wrap: anywhere; }
+  .now-text.long { font-size: clamp(18px, 4.5vw, 21px); line-height: 1.3; }
+  .now-text.muted { color: var(--muted); font-weight: 600; font-size: 19px; }
+  .next-step { display: grid; gap: 4px; }
+  .next-step > span { font-size: 12px; font-weight: 600; color: var(--muted); }
+  #now-active .next-step { margin-bottom: 12px; }
+  .field { width: 100%; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 16px; line-height: 1.4; }
   .field:focus { border-color: var(--accent); background: var(--surface); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
-  textarea.field { resize: vertical; min-height: 84px; }
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .btn {
-    border: 1px solid var(--line);
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-weight: 600;
-    font-size: 15px;
-    line-height: 1.2;
-    text-align: center;
-  }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 10px 14px; font-weight: 600; font-size: 15px; line-height: 1.2; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
   .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .6; cursor: default; }
   .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .btn.good { background: var(--good); color: var(--good-ink); border-color: var(--good); }
   .btn.ghost { background: transparent; }
   .btn.small { padding: 6px 10px; font-size: 13px; }
   .btn.danger { color: var(--danger); }
-
-  .hold-banner {
-    background: var(--hold-soft);
-    color: var(--ink);
-    border: 1px solid var(--hold);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-  }
-  .catch-row { display: flex; gap: 8px; }
-  .catch-row .field { flex: 1; min-width: 0; }
-  .hint { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .btn.armed { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+  .hint { margin: 0; font-size: 13px; color: var(--muted); }
+  .hint.bad { color: var(--danger); }
   .empty { margin: 0; font-size: 14px; color: var(--muted); }
-  .welcome ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+
+  .hold-banner { background: var(--hold-soft); border: 1px solid var(--hold); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; font-size: 14px; }
+  .now-thumb { display: block; padding: 0; width: 72px; height: 96px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface-2); margin-bottom: 10px; }
+  .now-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+
+  .big-wrap { display: grid; justify-items: center; gap: 14px; padding-block: 14px 2px; }
+  .big {
+    width: min(64vw, 248px);
+    height: min(64vw, 248px);
+    border-radius: 50%;
+    border: 0;
+    background: var(--hold);
+    color: var(--hold-ink);
+    box-shadow: 0 0 0 12px var(--hold-soft), 0 18px 40px var(--hold-glow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform .1s ease, box-shadow .1s ease;
+    touch-action: manipulation;
+  }
+  .big:active { transform: scale(.965); box-shadow: 0 0 0 16px var(--hold-soft), 0 8px 20px var(--hold-glow); }
+  .big svg.i { width: 54px; height: 54px; stroke-width: 1.9; }
+  .big-label { font-family: var(--display); font-weight: 800; font-size: clamp(21px, 5.8vw, 27px); line-height: 1.02; letter-spacing: -.015em; max-width: 8ch; }
+  .big-cap { margin: 0; font-size: 14px; color: var(--muted); text-align: center; max-width: 32ch; text-wrap: balance; }
+
+  .shot-row { display: flex; justify-content: center; align-items: stretch; flex-wrap: wrap; gap: 10px; }
+  .paste-pill, .paste-wide {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 10px;
+    color: var(--muted);
+    background: transparent;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.2;
+    cursor: text;
+    outline: none;
+    caret-color: var(--accent);
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .paste-pill { min-width: 110px; max-width: 180px; padding: 10px 14px; text-align: center; }
+  .paste-wide { padding: 12px 14px; font-size: 14px; }
+  .paste-pill:empty::before, .paste-wide:empty::before { content: attr(data-ph); pointer-events: none; }
+  .paste-pill:focus, .paste-wide:focus { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .linkish { background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 14px; padding: 8px; justify-self: center; text-decoration: underline; text-underline-offset: 3px; }
+  .welcome ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 15px; }
 
   .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   h2 { font-family: var(--display); font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -.005em; }
-  .count {
-    display: inline-block;
-    min-width: 22px;
-    text-align: center;
-    font-family: var(--body);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    background: var(--surface-2);
-    border-radius: 999px;
-    padding: 2px 7px;
-    margin-left: 6px;
-    font-variant-numeric: tabular-nums;
-  }
+  .count { display: inline-block; min-width: 22px; text-align: center; font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 2px 7px; margin-left: 6px; font-variant-numeric: tabular-nums; }
   details.card { padding: 0; }
   details.card > summary { padding: 14px 16px; list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
   details.card > summary::-webkit-details-marker { display: none; }
   details.card > summary::after { content: "+"; font-family: var(--display); font-weight: 700; color: var(--muted); font-size: 18px; }
-  details.card[open] > summary::after { content: "–"; }
+  details.card[open] > summary::after { content: "\2013"; }
   details.card > *:not(summary) { margin-inline: 16px; }
   details.card > *:last-child { margin-bottom: 16px; }
-  details.card > .empty { margin-bottom: 14px; }
 
   .list { list-style: none; margin: 0; padding: 0; }
-  .item {
-    width: 100%;
-    text-align: left;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 4px;
-    background: none;
-    border: 0;
-    border-top: 1px solid var(--line);
-    border-radius: 0;
-    font-size: 15px;
-    line-height: 1.35;
-  }
+  .item { width: 100%; text-align: left; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 4px; background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; font-size: 15px; line-height: 1.35; }
   .list li:first-child .item { border-top: 0; }
   .item:hover { background: var(--surface-2); }
   .item-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .item-when { color: var(--muted); font-size: 12px; white-space: nowrap; padding-top: 2px; font-variant-numeric: tabular-nums; }
-  .chip {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--hold-text);
-    background: var(--hold-soft);
-    border-radius: 999px;
-    padding: 1px 7px;
-    margin-right: 6px;
-    vertical-align: 1px;
-  }
-  .words dl { margin: 0 0 16px; }
-  .words dt { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 10px; }
-  .words dd { margin: 2px 0 0; font-size: 15px; }
-  .foot { font-size: 12px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--hold-text); background: var(--hold-soft); border-radius: 999px; padding: 1px 7px; margin-right: 6px; vertical-align: 1px; }
+  .mini { width: 22px; height: 29px; object-fit: cover; object-position: top center; border-radius: 4px; border: 1px solid var(--line); margin-right: 8px; vertical-align: -9px; }
 
-  .holdbar {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(to top, var(--bg) 70%, transparent);
-    pointer-events: none;
-    z-index: 40;
-  }
-  .hold-btn {
-    pointer-events: auto;
-    display: grid;
-    gap: 2px;
-    width: 100%;
-    max-width: 560px;
-    margin: 0 auto;
-    background: var(--hold);
-    color: var(--hold-ink);
-    border: 0;
-    border-radius: 16px;
-    padding: 14px 16px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    transition: transform .08s ease;
-  }
-  .hold-btn:active { transform: scale(.985); }
-  .hold-big { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
-  .hold-sub { font-size: 12px; font-weight: 500; opacity: .8; }
+  .saved-head { display: flex; gap: 8px; align-items: center; }
+  .search { position: relative; flex: 1; min-width: 0; }
+  .search svg.i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search .field { padding-left: 38px; background: var(--surface); }
+  .search .field::-webkit-search-cancel-button { cursor: pointer; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .chip-btn .chip-n { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .chip-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .chip-btn[aria-pressed="true"] .chip-n { color: inherit; opacity: .75; }
+  .label-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 16px 12px; }
+  .shot-card { background: none; border: 0; padding: 0; text-align: left; display: grid; gap: 6px; align-content: start; min-width: 0; }
+  .shot-img { position: relative; display: block; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); }
+  .shot-img img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .shot-img.broken::after { content: "Image missing"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .kind-chip { position: absolute; right: 8px; top: 8px; background: rgba(15, 20, 27, .8); color: #FFFFFF; font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; }
+  .shot-state { position: absolute; left: 8px; right: 8px; bottom: 8px; background: var(--surface); color: var(--ink); font-size: 12px; font-weight: 600; border-radius: 8px; padding: 4px 8px; box-shadow: var(--shadow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shot-state.bad { color: var(--danger); }
+  .shot-state.soft { color: var(--muted); }
+  .shot-card:hover .shot-img { border-color: var(--line-strong); }
+  .shot-title { font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .shot-meta { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty-card h2 { font-size: 19px; margin-bottom: 6px; }
+  .empty-card p { margin: 0 0 10px; }
+  .empty-card p:last-child { margin-bottom: 0; }
+  .meter { margin: 6px 0 0; font-size: 12px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
 
-  .backdrop {
-    position: fixed; inset: 0;
-    background: rgba(10, 14, 20, .5);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    z-index: 50;
-    padding: 0;
-  }
-  .sheet {
-    background: var(--surface);
-    color: var(--ink);
-    width: 100%;
-    max-width: 560px;
-    border-radius: 18px 18px 0 0;
-    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
-    box-shadow: var(--shadow);
-    display: grid;
-    gap: 12px;
-  }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .tabbar-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .tab-btn { position: relative; background: none; border: 0; padding: 8px 4px 9px; display: grid; justify-items: center; gap: 2px; color: var(--muted); font-size: 12px; font-weight: 600; }
+  .tab-btn svg.i { width: 24px; height: 24px; }
+  .tab-btn[aria-current="page"] { color: var(--accent); }
+  .badge { position: absolute; top: 4px; left: calc(50% + 6px); min-width: 18px; padding: 1px 5px; border-radius: 999px; background: var(--hold); color: var(--hold-ink); font-size: 11px; font-weight: 700; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .fab { position: fixed; z-index: 41; right: max(16px, calc(50vw - 264px)); bottom: calc(78px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; border-radius: 50%; border: 0; background: var(--hold); color: var(--hold-ink); box-shadow: 0 0 0 6px var(--hold-soft), 0 10px 24px var(--hold-glow); display: grid; place-items: center; touch-action: manipulation; }
+  body[data-tab="saved"] .fab { right: max(16px, calc(50vw - 504px)); }
+  .fab svg.i { width: 30px; height: 30px; }
+  .fab:active { transform: scale(.95); }
+
+  .backdrop { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; max-height: calc(100% - 24px); overflow-y: auto; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow); display: grid; gap: 12px; }
   @media (min-width: 600px) {
     .backdrop { align-items: center; padding: 16px; }
     .sheet { border-radius: 18px; padding-bottom: 18px; }
   }
   .sheet h2 { font-size: 20px; }
-  .bookmark { margin: 0; font-size: 13px; color: var(--muted); }
-  .bookmark b { color: var(--ink); font-weight: 600; }
-  .sort-text {
-    font-family: var(--display);
-    font-size: clamp(20px, 5vw, 26px);
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0;
-    overflow-wrap: anywhere;
-    text-wrap: balance;
-  }
+  .sort-text { font-family: var(--display); font-size: clamp(20px, 5vw, 25px); font-weight: 700; line-height: 1.22; margin: 0; overflow-wrap: anywhere; }
   .sort-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .sort-actions .btn { padding: 12px 10px; }
-  .sheet .hint { margin: 0; min-height: 1.2em; }
+  .split-btn { justify-self: start; }
 
-  .toast {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
-    background: var(--ink);
-    color: var(--bg);
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    box-shadow: var(--shadow);
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    max-width: calc(100% - 32px);
-    z-index: 60;
-  }
+  .talk { position: fixed; inset: 0; z-index: 60; background: var(--surface); overflow-y: auto; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .talk-in { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 24px; display: grid; gap: 12px; }
+  .talk-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+  .talk-head h2 { font-size: 17px; text-align: center; }
+  .talk-head .btn:first-child { justify-self: start; }
+  .talk-head .btn:last-child { justify-self: end; padding: 11px 22px; font-size: 16px; }
+  .bookmark { margin: 0; font-size: 13px; color: var(--muted); background: var(--hold-soft); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; }
+  .bookmark b { color: var(--ink); font-weight: 600; }
+  .talk-input { min-height: 32vh; font-size: 20px; line-height: 1.4; resize: vertical; background: var(--surface); }
+  .talk-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .talk-foot .hint { display: flex; gap: 8px; align-items: flex-start; }
+  .talk-foot .hint svg.i { width: 18px; height: 18px; margin-top: 1px; color: var(--hold-text); }
+
+  #batch { z-index: 65; }
+  .batch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .batch-item { display: grid; gap: 4px; align-content: start; }
+  .batch-item img, .batch-item .ph { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: top center; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); display: block; }
+  .batch-state { font-size: 12px; color: var(--muted); line-height: 1.25; overflow-wrap: anywhere; }
+  .batch-state.bad { color: var(--danger); }
+  .batch-state.ok { color: var(--ink); }
+
+  .detail-img { max-height: 56vh; overflow-y: auto; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .detail-img img { width: 100%; display: block; }
+  .detail-meta { margin: -6px 0 0; font-size: 13px; color: var(--muted); }
+  .detail-block p { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+  .detail-block .eyebrow { margin-bottom: 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 3px 9px; }
+
+  .words dl { margin: 0; }
+  .words dt { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 12px; }
+  .words dt:first-child { margin-top: 0; }
+  .words dd { margin: 2px 0 0; font-size: 15px; }
+
+  .drop { position: fixed; inset: 0; z-index: 70; background: var(--scrim); display: grid; place-items: center; padding: 16px; pointer-events: none; }
+  .drop p { margin: 0; background: var(--surface); color: var(--ink); border: 2px dashed var(--accent); border-radius: 16px; padding: 28px 32px; font-family: var(--display); font-weight: 700; font-size: 20px; text-align: center; }
+  .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 14px; border-radius: 10px; font-size: 14px; box-shadow: var(--shadow); display: flex; gap: 14px; align-items: center; width: max-content; max-width: calc(100% - 32px); z-index: 80; }
   .toast-act { background: none; border: 0; color: var(--hold); font-weight: 700; padding: 0; }
+  body.modal .toast { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; }
 </style>
 
-<div class="wrap">
-  <header class="top">
-    <p class="brand">Hold That Thought</p>
-    <span class="status dot-wait" id="status">Connecting…</span>
-  </header>
+<header class="top">
+  <p class="brand">Hold That Thought</p>
+  <span class="status dot-wait" id="status">Connecting…</span>
+</header>
 
-  <section class="card now" aria-labelledby="now-label">
-    <span class="eyebrow" id="now-label">Now</span>
-    <div id="now-empty">
-      <p class="now-text muted" id="now-empty-hint">Nothing picked yet.</p>
-      <button type="button" class="btn primary" id="pick-btn" hidden>Pick one thing</button>
-    </div>
-    <div id="now-active" hidden>
-      <div class="hold-banner" id="now-hold" hidden>
-        <span>Bookmarked at <b id="hold-since"></b> · <span id="hold-ago"></span></span>
-        <button type="button" class="btn small" id="resume-btn">Back to it</button>
+<main class="wrap">
+  <section class="tab" id="tab-now" aria-label="Now">
+    <section class="card now" aria-labelledby="now-label">
+      <span class="eyebrow" id="now-label">Now</span>
+      <div id="now-empty">
+        <p class="now-text muted" id="now-empty-hint">Loading…</p>
+        <button type="button" class="btn primary" id="pick-btn" hidden>Pick one thing</button>
       </div>
-      <h1 class="now-text" id="now-text"></h1>
-      <label class="next-step">
-        <span>Next small step</span>
-        <input class="field" id="next-step" placeholder="e.g. open the doc and write the first line" autocomplete="off">
+      <div id="now-active" hidden>
+        <div class="hold-banner" id="now-hold" hidden>
+          <span>You were here at <b id="hold-since"></b> · <span id="hold-ago"></span></span>
+          <button type="button" class="btn small" id="resume-btn">Back to it</button>
+        </div>
+        <button type="button" class="now-thumb" id="now-thumb" hidden aria-label="Open the screenshot"><img alt=""></button>
+        <h1 class="now-text" id="now-text"></h1>
+        <label class="next-step">
+          <span>Next small step</span>
+          <input class="field" id="next-step" placeholder="e.g. open the doc and write the first line" autocomplete="off">
+        </label>
+        <div class="row">
+          <button type="button" class="btn good" id="now-done">Done</button>
+          <button type="button" class="btn" id="now-pause">Pause</button>
+          <button type="button" class="btn ghost" id="now-later">Not today</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="big-wrap">
+      <button type="button" class="big" id="big-btn" aria-describedby="big-cap">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        <span class="big-label">Hold that thought</span>
+      </button>
+      <p class="big-cap" id="big-cap">Tap it, then talk. It bookmarks what you were doing first.</p>
+    </div>
+
+    <div class="shot-row" id="shot-row" hidden>
+      <label class="btn" for="file-input" role="button" tabindex="0">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>
+        Add screenshot
       </label>
-      <div class="row">
-        <button type="button" class="btn good" id="now-done">Done</button>
-        <button type="button" class="btn" id="now-pause">Pause</button>
-        <button type="button" class="btn ghost" id="now-later">Not today</button>
-      </div>
+      <div class="paste-pill" id="paste-home" contenteditable="true" inputmode="none" role="textbox" aria-label="Paste a screenshot or link here" data-ph="Paste"></div>
     </div>
+
+    <section class="card welcome" id="welcome" hidden>
+      <span class="eyebrow">How this works</span>
+      <ol>
+        <li>A thought shows up? Tap the orange button and talk. It bookmarks what you were doing first.</li>
+        <li>See an ad or a video worth keeping? Add the screenshot. Claude labels it so you can search for it later.</li>
+        <li>When you have a minute, open Pile and sort one card at a time. Keep one thing in Now.</li>
+      </ol>
+    </section>
+
+    <button type="button" class="linkish" id="words-btn">What to say when two people talk at once</button>
   </section>
 
-  <section class="card">
-    <form id="catch-form">
-      <label class="eyebrow" for="catch-input">Catch a thought</label>
-      <div class="catch-row">
-        <input class="field" id="catch-input" placeholder="Type it. Sort it later." autocomplete="off" autocapitalize="sentences" enterkeyhint="send">
-        <button type="submit" class="btn primary">Catch</button>
+  <section class="tab" id="tab-pile" aria-label="Pile" hidden>
+    <section class="card" aria-labelledby="inbox-h">
+      <div class="sec-head">
+        <h2 id="inbox-h">Caught <span class="count" id="inbox-count">0</span></h2>
+        <button type="button" class="btn small primary" id="sort-btn" hidden>Sort one at a time</button>
       </div>
-      <p class="hint">On a phone, tap the mic on your keyboard and say it.</p>
-    </form>
+      <p class="empty" id="inbox-empty">Nothing waiting. Good.</p>
+      <ul class="list" id="inbox-list"></ul>
+      <p class="hint" id="inbox-more" hidden></p>
+    </section>
+
+    <section class="card" aria-labelledby="next-h">
+      <div class="sec-head"><h2 id="next-h">Next <span class="count" id="next-count">0</span></h2></div>
+      <p class="empty" id="next-empty">Nothing lined up yet.</p>
+      <ul class="list" id="next-list"></ul>
+    </section>
+
+    <details class="card">
+      <summary><h2>Later <span class="count" id="later-count">0</span></h2></summary>
+      <p class="empty" id="later-empty">Nothing parked.</p>
+      <ul class="list" id="later-list"></ul>
+    </details>
+
+    <details class="card">
+      <summary><h2>Done today <span class="count" id="done-count">0</span></h2></summary>
+      <p class="empty" id="done-empty">Nothing yet today. One thing at a time.</p>
+      <ul class="list" id="done-list"></ul>
+      <p class="hint" id="done-older"></p>
+      <button type="button" class="btn small ghost" id="clear-done" hidden></button>
+    </details>
   </section>
 
-  <section class="card welcome" id="welcome" hidden>
-    <span class="eyebrow">How this works</span>
-    <ol>
-      <li>Every thought goes in the box above. Don't sort it, just catch it.</li>
-      <li>When someone starts talking, hit the orange button. It bookmarks what you were doing and takes the thought.</li>
-      <li>When you have a minute, sort the pile one card at a time. Keep one thing in Now.</li>
-    </ol>
-  </section>
-
-  <section class="card" aria-labelledby="inbox-h">
-    <div class="sec-head">
-      <h2 id="inbox-h">Caught <span class="count" id="inbox-count">0</span></h2>
-      <button type="button" class="btn small" id="sort-btn" hidden>Sort one at a time</button>
+  <section class="tab" id="tab-saved" aria-label="Saved" hidden>
+    <div class="saved-head">
+      <div class="search">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input type="search" class="field" id="search" placeholder="Search a brand, words, or why you saved it" autocomplete="off" aria-label="Search saved screenshots">
+      </div>
+      <label class="btn primary" for="file-input" id="saved-add" role="button" tabindex="0">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </label>
     </div>
-    <p class="empty" id="inbox-empty">Nothing waiting. Good.</p>
-    <ul class="list" id="inbox-list"></ul>
-    <p class="hint" id="inbox-more" hidden></p>
+    <div class="paste-wide" id="paste-saved" contenteditable="true" inputmode="none" role="textbox" aria-label="Paste a screenshot here" data-ph="Paste a screenshot here"></div>
+    <p class="card hint" id="shots-off" hidden>Screenshots save only in the page published through Claude. Open your Hold That Thought link to add them.</p>
+    <div class="chips" id="chips" hidden></div>
+    <div class="label-bar" id="label-bar" hidden>
+      <span id="label-bar-text"></span>
+      <button type="button" class="btn small" id="label-bar-btn">Label them</button>
+    </div>
+    <p class="hint" id="search-note" hidden></p>
+    <div class="grid" id="grid"></div>
+    <div class="card empty-card" id="saved-empty" hidden>
+      <h2>Keep the ads and videos you want to find again</h2>
+      <p>Tap Add and pick screenshots from Photos. Claude reads each one and labels it, so you can search by brand, the words in it, or the kind of post.</p>
+      <p class="hint" id="tip-touch">Fastest on iPhone: take the screenshot, open the preview, tap the checkmark or Done, and choose Copy and Delete. Then long-press the dashed box above and tap Paste. It never clutters your Photos.</p>
+      <p class="hint" id="tip-desk" hidden>On a computer: copy a screenshot and paste it anywhere on this page, or drag image files onto it.</p>
+    </div>
+    <p class="meter" id="meter"></p>
   </section>
+</main>
 
-  <section class="card" aria-labelledby="next-h">
-    <div class="sec-head"><h2 id="next-h">Next <span class="count" id="next-count">0</span></h2></div>
-    <p class="empty" id="next-empty">Nothing lined up yet.</p>
-    <ul class="list" id="next-list"></ul>
-  </section>
+<button type="button" class="fab" id="fab" hidden aria-label="Hold that thought">
+  <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+</button>
 
-  <details class="card" id="later-d">
-    <summary><h2>Later <span class="count" id="later-count">0</span></h2></summary>
-    <p class="empty" id="later-empty">Nothing parked.</p>
-    <ul class="list" id="later-list"></ul>
-  </details>
+<nav class="tabbar" aria-label="Sections">
+  <div class="tabbar-in">
+    <button type="button" class="tab-btn" data-go="now" aria-current="page">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/></svg>
+      <span>Now</span>
+    </button>
+    <button type="button" class="tab-btn" data-go="pile">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 8.5 4.6-8.5 4.6-8.5-4.6 8.5-4.6Z"/><path d="m3.5 12.4 8.5 4.6 8.5-4.6"/><path d="m3.5 16.4 8.5 4.6 8.5-4.6"/></svg>
+      <span>Pile</span>
+      <span class="badge" id="pile-badge" hidden></span>
+    </button>
+    <button type="button" class="tab-btn" data-go="saved">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+      <span>Saved</span>
+    </button>
+  </div>
+</nav>
 
-  <details class="card" id="done-d">
-    <summary><h2>Done today <span class="count" id="done-count">0</span></h2></summary>
-    <p class="empty" id="done-empty">Nothing yet today. One thing at a time.</p>
-    <ul class="list" id="done-list"></ul>
-    <p class="hint" id="done-older"></p>
-    <button type="button" class="btn small ghost" id="clear-done" hidden></button>
-  </details>
+<input type="file" id="file-input" class="vh" accept="image/*" multiple tabindex="-1" aria-hidden="true">
 
-  <details class="card words">
-    <summary><h2>Words for the moment</h2></summary>
-    <dl>
-      <dt>Someone talks while you're on a call</dt>
-      <dd>Hold up one finger. "On a call. Two minutes." Don't try to answer both.</dd>
-      <dt>Someone talks while you're deep in work</dt>
-      <dd>"Hold on, let me bookmark this." Hit the orange button, then give them your full attention.</dd>
-      <dt>You had an idea while they were talking</dt>
-      <dd>"One second, I need to write something down." Three words is enough.</dd>
-      <dt>You lost the thread mid-sentence</dt>
-      <dd>"Say that again? I lost the thread." Nobody minds. Pretending you didn't is what costs you.</dd>
-    </dl>
-  </details>
-
-  <p class="foot">One brain, one screen. Everything here stays in your Claude workspace.</p>
-</div>
-
-<div class="holdbar">
-  <button type="button" class="hold-btn" id="hold-btn">
-    <span class="hold-big">Hold that thought</span>
-    <span class="hold-sub">Someone's talking · I just had an idea</span>
-  </button>
-</div>
-
-<div class="backdrop" id="sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-    <p class="bookmark" id="sheet-bookmark" hidden>Bookmarked: <b id="sheet-bookmark-text"></b></p>
-    <h2 id="sheet-title">What's the thought?</h2>
-    <textarea class="field" id="sheet-input" rows="3" placeholder="Three words is enough."></textarea>
-    <div class="row">
-      <button type="button" class="btn primary" id="sheet-save">Save it</button>
-      <button type="button" class="btn ghost" id="sheet-skip">No thought, just interrupted</button>
+<div class="talk" id="talk" hidden role="dialog" aria-modal="true" aria-labelledby="talk-title">
+  <div class="talk-in">
+    <div class="talk-head">
+      <button type="button" class="btn ghost" id="talk-close">Close</button>
+      <h2 id="talk-title">Hold that thought</h2>
+      <button type="button" class="btn primary" id="talk-save">Save</button>
+    </div>
+    <p class="bookmark" id="talk-bookmark" hidden>Bookmarked <b id="talk-bookmark-text"></b> at <span id="talk-bookmark-time"></span></p>
+    <textarea class="field talk-input" id="talk-input" placeholder="Tap the mic on your keyboard and talk. Or type." autocapitalize="sentences" aria-label="Your thought"></textarea>
+    <div class="talk-foot">
+      <p class="hint">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        <span>Your keyboard's mic is the talk button. Closing saves it too.</span>
+      </p>
+      <button type="button" class="btn small ghost" id="talk-clear" hidden>Clear</button>
     </div>
   </div>
 </div>
@@ -443,6 +474,7 @@
 <div class="backdrop" id="sort" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sort-text">
     <span class="eyebrow" id="sort-progress"></span>
+    <button type="button" class="now-thumb" id="sort-thumb" hidden aria-label="Open the screenshot"><img alt=""></button>
     <p class="sort-text" id="sort-text"></p>
     <div class="sort-actions">
       <button type="button" class="btn primary" data-sort data-act="now">Do it now</button>
@@ -450,6 +482,7 @@
       <button type="button" class="btn" data-sort data-act="later">Later</button>
       <button type="button" class="btn ghost danger" data-sort data-act="gone">Let it go</button>
     </div>
+    <button type="button" class="btn small split-btn" id="sort-split" hidden>Split into separate thoughts</button>
     <p class="hint" id="sort-hint"></p>
     <div class="row">
       <button type="button" class="btn small ghost" id="sort-skip">Skip</button>
@@ -458,25 +491,125 @@
   </div>
 </div>
 
-<div class="toast" id="toast" hidden></div>
+<div class="backdrop" id="batch" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="batch-title">
+    <h2 id="batch-title">Saving your screenshot</h2>
+    <div class="batch-list" id="batch-list"></div>
+    <label class="next-step">
+      <span>Why keep it? Optional, but future you will thank you.</span>
+      <input class="field" id="batch-note" placeholder="e.g. great hook for the law firm ads" autocomplete="off">
+    </label>
+    <button type="button" class="btn primary" id="batch-done">Done</button>
+  </div>
+</div>
 
+<div class="backdrop" id="detail" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="detail-img" id="detail-img"></div>
+    <h2 id="detail-title"></h2>
+    <p class="detail-meta" id="detail-meta"></p>
+    <p class="hint bad" id="detail-error" hidden></p>
+    <label class="next-step" id="detail-note-wrap">
+      <span>Why you saved it</span>
+      <input class="field" id="detail-note" placeholder="A few words so future you knows" autocomplete="off">
+    </label>
+    <div class="detail-block" id="detail-hook-wrap"><span class="eyebrow">Hook</span><p id="detail-hook"></p></div>
+    <div class="detail-block" id="detail-text-wrap"><span class="eyebrow">Words in the picture</span><p id="detail-text"></p></div>
+    <div class="tags" id="detail-tags"></div>
+    <div class="row" id="detail-actions">
+      <button type="button" class="btn primary" id="detail-task">Make it a task</button>
+      <button type="button" class="btn" id="detail-relabel">Label again</button>
+      <button type="button" class="btn ghost danger" id="detail-delete">Delete</button>
+    </div>
+    <div class="row" id="detail-pending-actions" hidden>
+      <button type="button" class="btn primary" id="detail-retry">Try again</button>
+      <button type="button" class="btn ghost danger" id="detail-discard">Remove</button>
+    </div>
+    <button type="button" class="btn small ghost" id="detail-close">Close</button>
+  </div>
+</div>
+
+<div class="backdrop" id="words" hidden>
+  <div class="sheet words" role="dialog" aria-modal="true" aria-labelledby="words-title">
+    <h2 id="words-title">Words for the moment</h2>
+    <dl>
+      <dt>Someone talks while you're on a call</dt>
+      <dd>Hold up one finger. "On a call. Two minutes." Don't try to answer both.</dd>
+      <dt>Someone talks while you're deep in work</dt>
+      <dd>"Hold on, let me bookmark this." Tap the orange button, then give them your full attention.</dd>
+      <dt>You had an idea while they were talking</dt>
+      <dd>"One second, I need to write something down." Three words is enough.</dd>
+      <dt>You lost the thread mid-sentence</dt>
+      <dd>"Say that again? I lost the thread." Nobody minds. Pretending you didn't is what costs you.</dd>
+    </dl>
+    <button type="button" class="btn" id="words-close">Close</button>
+  </div>
+</div>
+
+<div class="drop" id="drop" hidden><p>Drop screenshots to save them</p></div>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script async src="https://cdn.jsdelivr.net/npm/fuse.js@7.2.0/dist/fuse.min.js" integrity="sha384-fjX7DeaZ/XFhVUVbuJ4tJCCRWoC6LtyhHqvsNRsJBcfs1VksovPjnUUGM3+Ii9st" crossorigin="anonymous"></script>
 <script>
 (() => {
   'use strict';
   const $ = (s) => document.querySelector(s);
   const LS_KEY = 'hold-that-thought.items.v1';
+  const LS_DRAFT = 'hold-that-thought.draft.v1';
   const DAY = 86400000;
+  const KIND_ONE = { ad: 'Ad', video: 'Video', post: 'Post', product: 'Product', article: 'Article', chat: 'Chat', other: 'Other' };
+  const KIND_MANY = { ad: 'Ads', video: 'Videos', post: 'Posts', product: 'Products', article: 'Articles', chat: 'Chats', other: 'Other' };
+  const IMG_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+  const STOP_CODES = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'images_unavailable']);
+  const FINE = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  const MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+  const PASTE_KEY = MAC ? '\u2318V' : 'Ctrl+V';
 
-  const state = {
-    mode: 'loading',   // loading | db | local | dberror
-    loaded: false,
-    pending: false,
-    items: new Map(),
-    card: null,        // { ids, i, mode }
-  };
-  let db = null;
+  const LABEL_PROMPT = [
+    'This is a screenshot someone saved from their phone or computer so they can find it again later.',
+    'They mostly save ads, videos, social posts, products and ideas.',
+    'Reply with only a JSON object in exactly this shape:',
+    '{"title": "", "kind": "", "brand": "", "hook": "", "text": "", "tags": []}',
+    'title: 3 to 8 words saying specifically what it is, for example "Running shoe ad, 30% off this weekend".',
+    'kind: one of "ad", "video", "post", "product", "article", "chat", "other". Use "ad" for anything sponsored or promotional.',
+    'brand: the brand, creator, account or app shown, or "" if none.',
+    'hook: the main headline or first line, word for word, or "" if none.',
+    'text: the other important words in the image, such as offers, prices, calls to action, handles and links. At most 300 characters.',
+    'tags: 3 to 6 short lowercase search words, such as the topic, industry, platform and format.',
+  ].join('\n');
+
+  const SPLIT_PROMPT = [
+    'Someone with ADHD said this out loud into a notes app. It may hold several separate thoughts or tasks run together.',
+    'Split it into separate items. Keep each one short and clear, and keep their own words where you can.',
+    'Do not add anything that is not in the note. Drop filler like "um" and "so yeah".',
+    'If it is really one thought, return a single item.',
+    'Reply with only a JSON array of strings, for example ["Call the bank about the fee", "Idea: a video about the new offer"].',
+    '',
+    'The note:',
+  ].join('\n');
+
+  const state = { mode: 'loading', loaded: false, pending: false, items: new Map(), card: null, tab: 'now', kind: 'all', query: '', detail: null };
+  const cap = { known: false, shots: false, label: false, split: false };
+  let db = null, assets = null, sample = null;
+  const capsSeen = new Set();
   const queued = [];
   const chains = new Map();
+  const openSheets = [];
+
+  const pendingShots = new Map();
+  const localThumbs = new Map();
+  const localFull = new Map();
+  const localFullBlob = new Map();
+  const uploadQueue = [];
+  let uploadBusy = false;
+  let batch = null;
+  const labelQueue = [];
+  const labelActive = new Set();
+  let labelBusy = false, labelPaused = false, labelFetching = false;
+  let splitting = null;
+  const storage = { known: false, loading: false, bytes: 0, files: 0, maxBytes: 0, maxFiles: 0 };
+  const cardCache = new Map();
+  const batchCache = new Map();
 
   // ---------- helpers ----------
   const now = () => Date.now();
@@ -485,17 +618,20 @@
   const byStatus = (s) => all().filter((i) => i.status === s);
   const currentNow = () => byStatus('now')[0] || null;
   const cmpNext = (a, b) => ((a.order || 0) - (b.order || 0)) || (a.updatedAt - b.updatedAt);
-  const short = (t, n = 40) => (t.length > n ? t.slice(0, n - 1) + '…' : t);
+  const short = (t, n) => { t = String(t || ''); n = n || 40; return t.length > n ? t.slice(0, n - 1) + '…' : t; };
   const fmtTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const fmtDay = (ms) => new Date(ms).toLocaleDateString([], { month: 'short', day: 'numeric' });
   const isToday = (ms) => new Date(ms).toDateString() === new Date().toDateString();
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const blobUrl = (id) => (id ? '/_blob/' + id : '');
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
   function ago(ms) {
     const m = Math.max(0, Math.round((now() - ms) / 60000));
     if (m < 1) return 'just now';
-    if (m < 60) return m + ' min';
+    if (m < 60) return m + ' min ago';
     const h = Math.floor(m / 60), r = m % 60;
-    if (h < 24) return h + ' hr' + (r ? ' ' + r + ' min' : '');
-    return Math.floor(h / 24) + ' d';
+    if (h < 24) return h + ' hr' + (r ? ' ' + r + ' min' : '') + ' ago';
+    return Math.floor(h / 24) + ' d ago';
   }
   function whenShort(ms) {
     const d = now() - ms;
@@ -503,7 +639,14 @@
     if (d < 3600000) return Math.round(d / 60000) + 'm';
     if (isToday(ms)) return Math.round(d / 3600000) + 'h';
     if (d < 7 * DAY) return new Date(ms).toLocaleDateString([], { weekday: 'short' });
-    return new Date(ms).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    return fmtDay(ms);
+  }
+  function fmtBytes(n) {
+    n = Number(n) || 0;
+    const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let i = 0;
+    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return (i === 0 ? n : n.toFixed(n < 10 ? 1 : 0)) + ' ' + u[i];
   }
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -512,7 +655,7 @@
     return e;
   }
 
-  // ---------- storage: db when the viewer grants it, this browser otherwise ----------
+  // ---------- storage: the artifact's database when granted, this browser otherwise ----------
   function serial(id, fn) {
     const prev = chains.get(id) || Promise.resolve();
     const run = () => fn().catch(async (e) => {
@@ -526,7 +669,7 @@
   function docBody(item) { const b = Object.assign({}, item); delete b.id; return b; }
   function onWriteError(e) {
     const code = e && e.code;
-    if (code === 'quota_exceeded') toast('Storage is full. Open Done and clear old items.');
+    if (code === 'quota_exceeded') toast('Storage is full. Clear old done items or delete old screenshots.');
     else if (code === 'resource_exhausted') toast('Too fast for the server. Give it a moment.');
     else if (code === 'invalid_argument') { /* changed elsewhere; the next snapshot corrects the view */ }
     else if (code === 'revoked' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') { state.mode = 'dberror'; render(); }
@@ -572,11 +715,14 @@
   function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(all())); } catch (e) { /* private window or blocked storage */ } }
   function flushQueue() { queued.splice(0).forEach((op) => op()); }
 
-  async function initStore() {
-    let ns = null;
+  function useCap(name) {
     try {
-      if (window.claude && typeof window.claude.use === 'function') ns = await window.claude.use('db');
-    } catch (e) { ns = null; }
+      if (window.claude && typeof window.claude.use === 'function') return Promise.resolve(window.claude.use(name)).catch(() => null);
+    } catch (e) { /* not inside a Claude viewer */ }
+    return Promise.resolve(null);
+  }
+  async function initStore() {
+    const ns = await useCap('db');
     if (ns) {
       db = ns;
       state.mode = 'db';
@@ -594,17 +740,33 @@
       loadLocal();
       flushQueue();
       state.loaded = true;
-      render();
     }
+    refreshCaps();
+  }
+  function initCaps() {
+    useCap('assets').then((ns) => { assets = ns || null; capsSeen.add('assets'); refreshCaps(); });
+    useCap('sample').then(async (ns) => {
+      sample = ns || null;
+      if (sample) {
+        cap.split = true;
+        try { const lim = await sample.limits(); cap.label = !!(lim && lim.images); } catch (e) { cap.label = false; }
+      }
+      refreshCaps();
+    });
+  }
+  function refreshCaps() {
+    cap.shots = !!assets && state.mode === 'db';
+    cap.known = capsSeen.has('assets') && state.mode !== 'loading';
+    render();
   }
 
-  // ---------- actions ----------
-  function catchThought(text, source) {
+  // ---------- thoughts ----------
+  function catchThought(text, source, extra) {
     text = (text || '').trim();
-    if (!text) return false;
-    const t = now();
-    put({ id: newId(), text, status: 'inbox', source: source || 'catch', createdAt: t, updatedAt: t, nextStep: '', holdAt: null, order: 0 });
-    return true;
+    if (!text) return null;
+    const t = now(), id = newId();
+    put(Object.assign({ id, text, status: 'inbox', source: source || 'talk', createdAt: t, updatedAt: t, nextStep: '', holdAt: null, order: 0 }, extra || {}));
+    return id;
   }
   function nextOrder(edge) {
     const os = byStatus('next').map((i) => i.order || 0);
@@ -641,40 +803,98 @@
     const stale = byStatus('done').filter((i) => now() - (i.doneAt || i.updatedAt) > 7 * DAY);
     if (!stale.length) return;
     toast('Clearing ' + stale.length + '…');
-    for (let i = 0; i < stale.length; i += 5) {
-      await Promise.all(stale.slice(i, i + 5).map((it) => remove(it.id)));
-    }
+    for (let i = 0; i < stale.length; i += 5) await Promise.all(stale.slice(i, i + 5).map((it) => remove(it.id)));
     toast('Cleared ' + stale.length + '.');
   }
 
-  // ---------- hold sheet ----------
-  function setModal(open) { document.body.classList.toggle('modal', open); }
-  function openHold() {
-    const cur = currentNow();
-    if (cur && !cur.holdAt) patch(cur.id, { holdAt: now() });
-    $('#sheet-bookmark').hidden = !cur;
-    if (cur) $('#sheet-bookmark-text').textContent = cur.text;
-    $('#sheet-input').value = '';
-    $('#sheet').hidden = false;
-    setModal(true);
-    setTimeout(() => $('#sheet-input').focus(), 30);
+  // ---------- sheets ----------
+  function openSheet(id) {
+    const s = document.getElementById(id);
+    if (!s || !s.hidden) return;
+    s.hidden = false;
+    openSheets.push(id);
+    document.body.classList.add('modal');
   }
-  function closeHold() { $('#sheet').hidden = true; setModal(!!state.card); }
-  function saveHold() {
-    if (catchThought($('#sheet-input').value, 'hold')) toast("Caught. It's safe here.");
-    closeHold();
+  function closeSheet(id) {
+    const s = document.getElementById(id);
+    if (!s || s.hidden) return;
+    s.hidden = true;
+    const k = openSheets.lastIndexOf(id);
+    if (k >= 0) openSheets.splice(k, 1);
+    document.body.classList.toggle('modal', openSheets.length > 0);
+  }
+  function closeTop() {
+    const id = openSheets[openSheets.length - 1];
+    if (id === 'talk') saveTalk();
+    else if (id === 'sort') closeCard();
+    else if (id === 'batch') closeBatch();
+    else if (id === 'detail') closeDetail();
+    else if (id) closeSheet(id);
   }
 
-  // ---------- one-card triage ----------
+  // ---------- talk: the big button ----------
+  let talkHoldId = null, draftTimer = 0;
+  function openTalk(prefill) {
+    const cur = currentNow();
+    if (cur && !cur.holdAt) patch(cur.id, { holdAt: now() });
+    talkHoldId = cur ? cur.id : null;
+    const held = cur ? state.items.get(cur.id) : null;
+    $('#talk-bookmark').hidden = !held;
+    if (held) {
+      $('#talk-bookmark-text').textContent = short(held.text, 60);
+      $('#talk-bookmark-time').textContent = fmtTime(held.holdAt || now());
+    }
+    const ta = $('#talk-input');
+    if (typeof prefill === 'string' && prefill.trim()) ta.value = (ta.value.trim() ? ta.value.trim() + '\n' : '') + prefill.trim();
+    openSheet('talk');
+    try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+    updateTalk();
+  }
+  function updateTalk() { $('#talk-clear').hidden = !$('#talk-input').value.trim(); }
+  function saveTalk() {
+    const ta = $('#talk-input');
+    const text = ta.value.trim();
+    const held = talkHoldId;
+    const id = text ? catchThought(text, held ? 'hold' : 'talk') : null;
+    ta.value = '';
+    clearDraft();
+    updateTalk();
+    ta.blur();
+    closeSheet('talk');
+    talkHoldId = null;
+    if (id) toast(held ? 'Caught. Your spot is bookmarked.' : 'Caught.', { label: 'Undo', fn: () => remove(id) });
+    else if (held) toast('Bookmarked. Tap Back to it when you return.');
+  }
+  function saveDraft() {
+    try {
+      const v = $('#talk-input').value;
+      if (v.trim()) localStorage.setItem(LS_DRAFT, JSON.stringify({ text: v, at: now() }));
+      else localStorage.removeItem(LS_DRAFT);
+    } catch (e) { /* storage blocked; the draft just isn't kept */ }
+  }
+  function clearDraft() {
+    clearTimeout(draftTimer);
+    try { localStorage.removeItem(LS_DRAFT); } catch (e) { /* storage blocked */ }
+  }
+  function recoverDraft() {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(LS_DRAFT) || 'null'); } catch (e) { d = null; }
+    if (d && typeof d.text === 'string' && d.text.trim()) {
+      clearDraft();
+      catchThought(d.text, 'draft');
+      toast("Saved a thought you didn't finish.");
+    }
+  }
+
+  // ---------- one-card sorting ----------
   const STATUS_LABEL = { inbox: 'Caught', next: 'Next', later: 'Later', done: 'Done', now: 'Now' };
   function openCard(ids, mode) {
     if (!ids.length) { toast('Nothing to sort. The pile is clear.'); return; }
-    state.card = { ids, i: 0, mode };
-    $('#sort').hidden = false;
-    setModal(true);
+    state.card = { ids: ids.slice(), i: 0, mode };
+    openSheet('sort');
     renderCard();
   }
-  function closeCard() { state.card = null; $('#sort').hidden = true; setModal(!$('#sheet').hidden); }
+  function closeCard() { state.card = null; closeSheet('sort'); }
   function renderCard() {
     const c = state.card;
     if (!c) return;
@@ -684,10 +904,15 @@
     const many = c.ids.length > 1;
     $('#sort-progress').textContent = many ? (c.i + 1) + ' of ' + c.ids.length : (STATUS_LABEL[it.status] || '');
     $('#sort-text').textContent = it.text;
+    setThumb($('#sort-thumb'), it.ref);
     $('#sort-skip').hidden = !many;
     document.querySelectorAll('#sort [data-sort]').forEach((b) => { b.hidden = b.dataset.act === it.status; });
     const cur = currentNow();
     $('#sort-hint').textContent = (cur && cur.id !== it.id) ? 'Your current Now moves to the top of Next.' : '';
+    const sb = $('#sort-split');
+    sb.hidden = !(cap.split && it.text.length >= 90);
+    sb.disabled = !!splitting;
+    sb.textContent = splitting ? 'Splitting…' : 'Split into separate thoughts';
   }
   function cardAct(act) {
     const c = state.card;
@@ -699,15 +924,660 @@
     else moveTo(id, act);
     if (state.card === c) { c.i = idx + 1; renderCard(); }
   }
+  async function splitItem(id) {
+    const it = state.items.get(id);
+    if (!it || !sample || splitting) return;
+    splitting = id;
+    renderCard();
+    try {
+      const r = await sample.json(SPLIT_PROMPT + '\n"""\n' + it.text.slice(0, 6000) + '\n"""', { modelTier: 'quick' });
+      const raw = Array.isArray(r) ? r : (r && Array.isArray(r.items) ? r.items : []);
+      const parts = raw.map((x) => (typeof x === 'string' ? x : (x && (x.text || x.thought)) || ''))
+        .map((x) => String(x).replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 12);
+      if (parts.length < 2) { toast("That's already one thought."); return; }
+      const status = it.status === 'now' ? 'inbox' : it.status;
+      const ids = parts.map((text, i) => {
+        const nid = newId();
+        put({ id: nid, text, status, source: 'split', createdAt: it.createdAt + i, updatedAt: now(), nextStep: '', holdAt: null, order: it.order || 0 });
+        return nid;
+      });
+      remove(id);
+      const c = state.card;
+      if (c) { const k = c.ids.indexOf(id); if (k >= 0) { c.ids.splice(k, 1, ...ids); c.i = k; } }
+      toast('Split into ' + parts.length + '.', { label: 'Undo', fn: () => { ids.forEach((x) => remove(x)); put(it); } });
+    } catch (e) {
+      if (STOP_CODES.has(e && e.code)) cap.split = false;
+      toast(sampleErrorText(e));
+    } finally {
+      splitting = null;
+      renderCard();
+    }
+  }
+  function sampleErrorText(e) {
+    switch (e && e.code) {
+      case 'rate_limited': return 'Claude is busy, or your usage limit is reached. Try again later.';
+      case 'session_expired': return 'Sign in to Claude again, then try once more.';
+      case 'not_granted': case 'sampling_disabled': case 'not_declared': case 'capability_disabled': case 'capability_removed':
+        return "Claude isn't turned on for this page, so that feature is off.";
+      case 'refused': return "Claude wouldn't process that one.";
+      case 'image_rejected': return "Claude couldn't open that image.";
+      default: return "Claude couldn't finish. Try again in a moment.";
+    }
+  }
+
+  // ---------- screenshots ----------
+  function isImageFile(f) { return !!f && ((f.type && f.type.indexOf('image/') === 0) || /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(f.name || '')); }
+  function thumbSrc(it) { return localThumbs.get(it.id) || (it.pending ? it.localUrl : blobUrl(it.shot && (it.shot.thumb || it.shot.full))); }
+  function fullSrc(it) { return localFull.get(it.id) || (it.pending ? it.localUrl : blobUrl(it.shot && it.shot.full)) || ''; }
+
+  function addShots(list) {
+    const files = Array.from(list || []).filter(isImageFile);
+    if (!files.length) return false;
+    if (!cap.shots) { toast(cap.known ? 'Screenshots save only in the page published through Claude.' : 'Still connecting. Try again in a moment.'); return true; }
+    if (files.length > 20) toast('Saving the first 20. Add the rest after.');
+    const t = now();
+    const ids = files.slice(0, 20).map((f, i) => {
+      const id = newId();
+      let url = '';
+      try { url = URL.createObjectURL(f); } catch (e) { url = ''; }
+      pendingShots.set(id, { id, pending: true, file: f, localUrl: url, state: 'saving', error: '', note: '', status: 'saved', source: 'shot', text: '', createdAt: t + i });
+      uploadQueue.push(id);
+      return id;
+    });
+    if (batch && !$('#batch').hidden) batch.ids.push(...ids);
+    else { batch = { ids }; $('#batch-note').value = ''; openSheet('batch'); }
+    render();
+    runUploads();
+    return true;
+  }
+  async function runUploads() {
+    if (uploadBusy) return;
+    uploadBusy = true;
+    render();
+    try {
+      while (uploadQueue.length) {
+        const id = uploadQueue.shift();
+        const p = pendingShots.get(id);
+        if (!p) continue;
+        p.state = 'saving';
+        p.error = '';
+        render();
+        try {
+          await saveShot(p);
+        } catch (e) {
+          const code = e && e.code;
+          p.state = 'failed';
+          p.error = uploadErrorText(e);
+          if (code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') cap.shots = false;
+          if (['rate_limited', 'quota_or_state', 'upstream_auth', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) {
+            uploadQueue.splice(0).forEach((q) => { const pp = pendingShots.get(q); if (pp) { pp.state = 'failed'; pp.error = p.error; } });
+            toast(p.error);
+          }
+        }
+        render();
+      }
+    } finally {
+      uploadBusy = false;
+      render();
+    }
+  }
+  async function saveShot(p) {
+    let full = null, thumb = null;
+    try {
+      const src = await decodeImage(p.file);
+      full = await encodeJpeg(src, 1600, 1600, 0.82);
+      thumb = await encodeJpeg(src, 360, 900, 0.72);
+      if (src.close) { try { src.close(); } catch (e) { /* already released */ } }
+    } catch (e) {
+      if (IMG_TYPES.includes(p.file.type) && p.file.size <= 20 * 1024 * 1024) full = { blob: p.file, w: 0, h: 0 };
+      else throw { code: 'decode' };
+    }
+    if (thumb) {
+      const u = URL.createObjectURL(thumb.blob);
+      localThumbs.set(p.id, u);
+      if (p.localUrl) { try { URL.revokeObjectURL(p.localUrl); } catch (e) { /* ignore */ } }
+      p.localUrl = u;
+      render();
+    }
+    const upFull = await uploadBlob(full.blob);
+    let upThumb = null;
+    if (thumb) { try { upThumb = await uploadBlob(thumb.blob); } catch (e) { upThumb = null; } }
+    try { localFull.set(p.id, URL.createObjectURL(full.blob)); } catch (e) { /* display falls back to the stored copy */ }
+    localFullBlob.set(p.id, full.blob);
+    const doc = {
+      id: p.id, text: (p.note || '').trim(), status: 'saved', source: 'shot',
+      createdAt: p.createdAt, updatedAt: now(), nextStep: '', holdAt: null, order: 0,
+      shot: { full: upFull.id, thumb: upThumb ? upThumb.id : '', w: full.w, h: full.h, bytes: (upFull.sizeBytes || 0) + (upThumb ? upThumb.sizeBytes || 0 : 0) },
+      label: null, labelState: 'pending',
+    };
+    pendingShots.delete(p.id);
+    put(doc);
+    if (storage.known) { storage.bytes += doc.shot.bytes; storage.files += upThumb ? 2 : 1; }
+    if (cap.label) queueLabel(p.id, full.blob, false);
+  }
+  async function decodeImage(file) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file); } catch (e) { /* fall back to an <img> decode */ }
+    }
+    return await new Promise((res, rej) => {
+      const u = URL.createObjectURL(file);
+      const im = new Image();
+      im.onload = () => { res(im); setTimeout(() => URL.revokeObjectURL(u), 0); };
+      im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('decode')); };
+      im.src = u;
+    });
+  }
+  function encodeJpeg(src, maxW, maxH, q) {
+    const sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height;
+    if (!sw || !sh) return Promise.reject(new Error('size'));
+    const s = Math.min(1, maxW / sw, maxH / sh);
+    const w = Math.max(1, Math.round(sw * s)), h = Math.max(1, Math.round(sh * s));
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, w, h);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, 0, 0, w, h);
+    return new Promise((res, rej) => c.toBlob((b) => { c.width = 0; c.height = 0; if (b) res({ blob: b, w, h }); else rej(new Error('encode')); }, 'image/jpeg', q));
+  }
+  async function uploadBlob(blob) {
+    const opts = IMG_TYPES.includes(blob.type) ? { type: blob.type } : undefined;
+    try { return await assets.upload(blob, opts); } catch (e) {
+      if (e && e.code === 'store_unavailable') { await sleep(700 + Math.random() * 900); return await assets.upload(blob, opts); }
+      throw e;
+    }
+  }
+  function uploadErrorText(e) {
+    switch (e && e.code) {
+      case 'decode': return "Couldn't open that image. Try a PNG or JPEG.";
+      case 'too_large': return 'That image is too big to save.';
+      case 'unsupported_type': return "That file type can't be saved. Use a PNG or JPEG.";
+      case 'quota_or_state': return 'Storage is full. Delete some old screenshots first.';
+      case 'rate_limited': return 'Too many at once. Wait a moment, then tap it to try again.';
+      case 'upstream_auth': return 'Your sign-in expired. Reload the page, then try again.';
+      case 'not_granted': case 'capability_disabled': case 'capability_removed': return "Saving screenshots isn't allowed in this view.";
+      default: return "Couldn't save it. Check your connection, then tap it to try again.";
+    }
+  }
+  function retryShot(id) {
+    const p = pendingShots.get(id);
+    if (!p || p.state === 'saving') return;
+    p.state = 'saving';
+    p.error = '';
+    uploadQueue.push(id);
+    render();
+    runUploads();
+  }
+  function discardShot(id) {
+    const p = pendingShots.get(id);
+    if (!p) return;
+    if (p.localUrl) { try { URL.revokeObjectURL(p.localUrl); } catch (e) { /* ignore */ } }
+    localThumbs.delete(id);
+    pendingShots.delete(id);
+    render();
+  }
+  function closeBatch() {
+    const note = $('#batch-note').value.trim();
+    if (batch && note) {
+      batch.ids.forEach((id) => {
+        const p = pendingShots.get(id);
+        if (p) p.note = note;
+        const it = state.items.get(id);
+        if (it && it.text !== note) patch(id, { text: note });
+      });
+    }
+    const failed = batch ? batch.ids.filter((id) => { const p = pendingShots.get(id); return p && p.state === 'failed'; }).length : 0;
+    batch = null;
+    batchCache.clear();
+    $('#batch-note').blur();
+    closeSheet('batch');
+    if (failed) toast((failed === 1 ? "1 screenshot didn't save." : failed + " screenshots didn't save.") + ' Tap it under Saved to try again.', { label: 'View', fn: () => setTab('saved') });
+    else if (state.tab !== 'saved') toast("Kept. It's under Saved.", { label: 'View', fn: () => setTab('saved') });
+  }
+  function shotStatus(it, verbose) {
+    if (it.pending) return it.state === 'failed' ? { text: verbose ? it.error : "Didn't save. Tap it.", cls: 'bad' } : { text: 'Saving…', cls: '' };
+    if (labelActive.has(it.id)) return { text: 'Reading…', cls: '' };
+    if (verbose) {
+      if (it.labelState === 'done' && it.label && it.label.title) return { text: it.label.title, cls: 'ok' };
+      if (it.labelState === 'failed') return { text: "Saved. Claude couldn't read it.", cls: '' };
+      return { text: 'Saved', cls: 'ok' };
+    }
+    if (it.labelState === 'failed') return { text: "Couldn't read", cls: 'soft' };
+    return null;
+  }
+  function renderBatch() {
+    if (!batch || $('#batch').hidden) return;
+    const n = batch.ids.length;
+    $('#batch-title').textContent = n === 1 ? 'Saving your screenshot' : 'Saving ' + n + ' screenshots';
+    const nodes = batch.ids.map((id) => {
+      const it = state.items.get(id) || pendingShots.get(id);
+      let c = batchCache.get(id);
+      if (!c) {
+        const node = el('div', 'batch-item');
+        const img = document.createElement('img');
+        img.alt = '';
+        const st = el('span', 'batch-state');
+        node.append(img, st);
+        c = { node, img, st };
+        batchCache.set(id, c);
+      }
+      const src = it ? thumbSrc(it) : '';
+      if (src && c.img.getAttribute('src') !== src) c.img.setAttribute('src', src);
+      const s = it ? shotStatus(it, true) : { text: 'Removed', cls: '' };
+      c.st.textContent = s.text;
+      c.st.className = 'batch-state' + (s.cls ? ' ' + s.cls : '');
+      return c.node;
+    });
+    $('#batch-list').replaceChildren(...nodes);
+  }
+
+  // ---------- labels from Claude ----------
+  function queueLabel(id, blob, fresh) {
+    if (!cap.label || !sample || labelPaused || !blob) return;
+    labelQueue.push({ id, blob, fresh: !!fresh });
+    labelActive.add(id);
+    render();
+    runLabels();
+  }
+  function dropLabelQueue() { labelQueue.splice(0).forEach((j) => labelActive.delete(j.id)); }
+  async function runLabels() {
+    if (labelBusy) return;
+    labelBusy = true;
+    try {
+      while (labelQueue.length) {
+        const job = labelQueue.shift();
+        if (!state.items.has(job.id)) { labelActive.delete(job.id); continue; }
+        let result = null, err = null;
+        try {
+          const opts = { images: job.blob, modelTier: 'quick' };
+          if (job.fresh) opts.cache = false;
+          result = await sample.json(LABEL_PROMPT, opts);
+        } catch (e) { err = e || {}; }
+        labelActive.delete(job.id);
+        if (!err) {
+          if (state.items.has(job.id)) patch(job.id, { label: cleanLabel(result), labelState: 'done' });
+          continue;
+        }
+        const code = err.code;
+        if (STOP_CODES.has(code)) {
+          cap.label = false;
+          dropLabelQueue();
+          toast(code === 'images_unavailable' ? "This view can't send images to Claude, so labels are off here." : 'Auto-labels are off. Add a note to each screenshot so you can find it.');
+          break;
+        }
+        if (code === 'rate_limited' || code === 'session_expired') {
+          labelPaused = true;
+          dropLabelQueue();
+          toast(sampleErrorText(err));
+          break;
+        }
+        if (state.items.has(job.id)) patch(job.id, { labelState: 'failed' });
+      }
+    } finally {
+      labelBusy = false;
+      render();
+    }
+  }
+  function cleanLabel(r) {
+    const o = (r && typeof r === 'object' && !Array.isArray(r)) ? r : (Array.isArray(r) && r[0] && typeof r[0] === 'object' ? r[0] : {});
+    const s = (v, n) => (typeof v === 'string' ? v : v == null ? '' : String(v)).replace(/\s+/g, ' ').trim().slice(0, n);
+    let kind = s(o.kind, 20).toLowerCase();
+    if (!KIND_ONE[kind]) kind = 'other';
+    const rawTags = Array.isArray(o.tags) ? o.tags : (typeof o.tags === 'string' ? o.tags.split(/[,;]/) : []);
+    const tags = rawTags.map((t) => s(t, 30).toLowerCase()).filter(Boolean).slice(0, 8);
+    return { title: s(o.title, 90), kind, brand: s(o.brand, 60), hook: s(o.hook, 220), text: s(o.text, 500), tags };
+  }
+  async function fetchBlob(it) {
+    const r = await fetch(blobUrl(it.shot && it.shot.full));
+    if (!r.ok) throw new Error('fetch ' + r.status);
+    const b = await r.blob();
+    return IMG_TYPES.includes(b.type) ? b : new Blob([b], { type: 'image/jpeg' });
+  }
+  async function labelUnlabeled() {
+    if (!cap.label || labelFetching) return;
+    labelPaused = false;
+    labelFetching = true;
+    render();
+    const list = all().filter((i) => i.status === 'saved' && (i.labelState === 'pending' || i.labelState === 'failed') && !labelActive.has(i.id)).slice(0, 12);
+    try {
+      for (const it of list) {
+        if (!cap.label || labelPaused) break;
+        try { queueLabel(it.id, await fetchBlob(it), it.labelState === 'failed'); } catch (e) { patch(it.id, { labelState: 'failed' }); }
+      }
+    } finally {
+      labelFetching = false;
+      render();
+    }
+  }
+  async function relabel(id) {
+    const it = state.items.get(id);
+    if (!it || !cap.label || labelActive.has(id)) return;
+    labelPaused = false;
+    const btn = $('#detail-relabel');
+    btn.disabled = true;
+    btn.textContent = 'Reading…';
+    try {
+      const b = localFullBlob.get(id) || await fetchBlob(it);
+      queueLabel(id, b, true);
+    } catch (e) {
+      toast("Couldn't load the image to read it.");
+    } finally {
+      render();
+    }
+  }
+  // ---------- saved view ----------
+  function savedList() {
+    const list = all().filter((i) => i.status === 'saved');
+    pendingShots.forEach((p) => { if (!state.items.has(p.id)) list.push(p); });
+    return list.sort((a, b) => b.createdAt - a.createdAt);
+  }
+  const kindOf = (it) => (it.label && KIND_ONE[it.label.kind] ? it.label.kind : '');
+  function titleOf(it) { return (it.label && it.label.title) || it.text || (it.pending ? 'New screenshot' : 'Screenshot'); }
+  function metaOf(it) {
+    const k = kindOf(it), parts = [];
+    if (k) parts.push(KIND_ONE[k]);
+    if (it.label && it.label.brand) parts.push(it.label.brand);
+    parts.push(whenShort(it.createdAt));
+    return parts.join(' · ');
+  }
+  function hayOf(it) {
+    const l = it.label || {};
+    return norm([l.title, l.brand, l.hook, l.text, (l.tags || []).join(' '), it.text, KIND_ONE[l.kind] || '', KIND_MANY[l.kind] || '', fmtDay(it.createdAt)].join(' \n '));
+  }
+  function searchList(list, q) {
+    const toks = norm(q).split(/\s+/).filter(Boolean);
+    if (!toks.length) return { list, fuzzy: false };
+    const exact = list.filter((it) => { const h = hayOf(it); return toks.every((t) => h.indexOf(t) >= 0); });
+    if (exact.length || typeof window.Fuse !== 'function') return { list: exact, fuzzy: false };
+    try {
+      const rows = list.map((it) => {
+        const l = it.label || {};
+        return { it, title: l.title || '', brand: l.brand || '', note: it.text || '', tags: (l.tags || []).join(' '), hook: l.hook || '', words: l.text || '' };
+      });
+      const fuse = new window.Fuse(rows, {
+        keys: [{ name: 'title', weight: 3 }, { name: 'brand', weight: 3 }, { name: 'note', weight: 2 }, { name: 'tags', weight: 2 }, { name: 'hook', weight: 1 }, { name: 'words', weight: 1 }],
+        threshold: 0.34, ignoreLocation: true, minMatchCharLength: 2,
+      });
+      return { list: fuse.search(q).map((r) => r.item.it), fuzzy: true };
+    } catch (e) { return { list: exact, fuzzy: false }; }
+  }
+  function renderChips(total, counts) {
+    const box = $('#chips');
+    const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    box.hidden = keys.length === 0;
+    const mk = (k, label, n) => {
+      const b = el('button', 'chip-btn');
+      b.type = 'button';
+      b.dataset.kind = k;
+      b.setAttribute('aria-pressed', String(state.kind === k));
+      b.append(document.createTextNode(label + ' '), el('span', 'chip-n', String(n)));
+      return b;
+    };
+    box.replaceChildren(mk('all', 'All', total), ...keys.map((k) => mk(k, KIND_MANY[k], counts[k])));
+  }
+  function cardSig(it) { const st = shotStatus(it, false); return [thumbSrc(it), titleOf(it), kindOf(it), st ? st.text + st.cls : ''].join('|'); }
+  function buildCard(it) {
+    const b = el('button', 'shot-card');
+    b.type = 'button';
+    b.dataset.shot = it.id;
+    const fig = el('span', 'shot-img');
+    const src = thumbSrc(it);
+    if (src) {
+      const im = document.createElement('img');
+      im.alt = '';
+      im.loading = 'lazy';
+      im.decoding = 'async';
+      im.src = src;
+      im.addEventListener('error', () => { fig.classList.add('broken'); im.remove(); });
+      fig.appendChild(im);
+    }
+    const k = kindOf(it);
+    if (k) fig.appendChild(el('span', 'kind-chip', KIND_ONE[k]));
+    const st = shotStatus(it, false);
+    if (st) fig.appendChild(el('span', 'shot-state' + (st.cls ? ' ' + st.cls : ''), st.text));
+    b.append(fig, el('span', 'shot-title', titleOf(it)), el('span', 'shot-meta', metaOf(it)));
+    return b;
+  }
+  function renderGrid(list, keepIds) {
+    const nodes = list.map((it) => {
+      const sig = cardSig(it);
+      let c = cardCache.get(it.id);
+      if (!c || c.sig !== sig) { const node = buildCard(it); c = { sig, node, meta: node.querySelector('.shot-meta') }; cardCache.set(it.id, c); }
+      const meta = metaOf(it);
+      if (c.meta.textContent !== meta) c.meta.textContent = meta;
+      c.node.setAttribute('aria-label', titleOf(it) + ', ' + meta);
+      return c.node;
+    });
+    cardCache.forEach((v, k) => { if (!keepIds.has(k)) cardCache.delete(k); });
+    $('#grid').replaceChildren(...nodes);
+  }
+  function renderSaved() {
+    const on = cap.shots;
+    $('#saved-add').hidden = !on;
+    $('#paste-saved').hidden = !on;
+    $('#shots-off').hidden = !(cap.known && !on);
+    const base = savedList();
+    const counts = {};
+    base.forEach((it) => { const k = kindOf(it); if (k) counts[k] = (counts[k] || 0) + 1; });
+    if (state.kind !== 'all' && !counts[state.kind]) state.kind = 'all';
+    renderChips(base.length, counts);
+    let list = state.kind === 'all' ? base : base.filter((it) => kindOf(it) === state.kind);
+    const q = state.query.trim();
+    let fuzzy = false;
+    if (q) { const r = searchList(list, q); list = r.list; fuzzy = r.fuzzy; }
+    const note = $('#search-note');
+    note.hidden = !q || (list.length > 0 && !fuzzy);
+    note.textContent = list.length ? 'No exact matches. These are close.' : 'Nothing matches "' + short(q, 30) + '".';
+    renderGrid(list, new Set(base.map((i) => i.id)));
+    $('#saved-empty').hidden = !(state.loaded && on && base.length === 0);
+    $('#tip-touch').hidden = FINE;
+    $('#tip-desk').hidden = !FINE;
+    const un = cap.label ? base.filter((it) => !it.pending && (it.labelState === 'pending' || it.labelState === 'failed') && !labelActive.has(it.id)).length : 0;
+    $('#label-bar').hidden = !un || labelFetching;
+    if (un) $('#label-bar-text').textContent = un === 1 ? "1 screenshot isn't labeled yet." : un + " screenshots aren't labeled yet.";
+    if (on) loadMeter();
+    renderMeter(base.filter((i) => !i.pending).length);
+  }
+  function loadMeter() {
+    if (storage.known || storage.loading || !assets) return;
+    storage.loading = true;
+    assets.list().then((r) => {
+      const u = r && r.usage;
+      if (u) Object.assign(storage, { bytes: u.bytes || 0, files: u.files || 0, maxBytes: u.maxBytes || 0, maxFiles: u.maxFiles || 0, known: true });
+    }).catch(() => { /* the meter is optional */ }).then(() => { storage.loading = false; if (state.tab === 'saved') renderMeter(savedList().filter((i) => !i.pending).length); });
+  }
+  function renderMeter(n) {
+    const parts = [];
+    if (n) parts.push(n + (n === 1 ? ' screenshot' : ' screenshots'));
+    if (storage.known && storage.maxBytes) parts.push(fmtBytes(storage.bytes) + ' of ' + fmtBytes(storage.maxBytes) + ' storage used');
+    $('#meter').textContent = parts.join(' · ');
+  }
+
+  // ---------- one saved screenshot ----------
+  let delTimer = 0;
+  function openDetail(id) {
+    if (!id) return;
+    state.detail = id;
+    resetDeleteBtn();
+    openSheet('detail');
+    renderDetail(true);
+  }
+  function commitDetailNote() {
+    const id = state.detail;
+    const it = id && state.items.get(id);
+    if (!it) return;
+    const v = $('#detail-note').value.trim();
+    if (v !== (it.text || '')) patch(id, { text: v });
+  }
+  function closeDetail() {
+    commitDetailNote();
+    state.detail = null;
+    resetDeleteBtn();
+    $('#detail-note').blur();
+    closeSheet('detail');
+  }
+  function renderDetail(first) {
+    const id = state.detail;
+    if (!id) return;
+    const it = state.items.get(id) || pendingShots.get(id);
+    if (!it) { state.detail = null; closeSheet('detail'); return; }
+    const pending = !state.items.has(id);
+    const box = $('#detail-img');
+    const src = fullSrc(it);
+    if (box.dataset.src !== src) {
+      box.dataset.src = src;
+      const im = document.createElement('img');
+      im.alt = titleOf(it);
+      if (src) im.src = src;
+      box.replaceChildren(im);
+      box.scrollTop = 0;
+    }
+    $('#detail-title').textContent = titleOf(it);
+    const k = kindOf(it);
+    $('#detail-meta').textContent = pending
+      ? (it.state === 'failed' ? 'Not saved yet' : 'Saving…')
+      : [k ? KIND_ONE[k] : '', it.label && it.label.brand, new Date(it.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })].filter(Boolean).join(' · ');
+    const err = $('#detail-error');
+    err.hidden = !(pending && it.state === 'failed');
+    err.textContent = pending ? (it.error || '') : '';
+    $('#detail-note-wrap').hidden = pending;
+    const note = $('#detail-note');
+    if (first || document.activeElement !== note) note.value = it.text || '';
+    const l = it.label || {};
+    $('#detail-hook-wrap').hidden = !l.hook;
+    $('#detail-hook').textContent = l.hook || '';
+    $('#detail-text-wrap').hidden = !l.text;
+    $('#detail-text').textContent = l.text || '';
+    const tags = $('#detail-tags');
+    tags.replaceChildren(...(l.tags || []).map((t) => el('span', 'tag', t)));
+    tags.hidden = !(l.tags && l.tags.length);
+    $('#detail-actions').hidden = pending;
+    $('#detail-pending-actions').hidden = !pending;
+    $('#detail-retry').hidden = !(pending && it.state === 'failed');
+    const rb = $('#detail-relabel');
+    rb.hidden = !cap.label;
+    const reading = labelActive.has(id);
+    rb.disabled = reading;
+    rb.textContent = reading ? 'Reading…' : 'Label again';
+  }
+  function resetDeleteBtn() {
+    clearTimeout(delTimer);
+    delTimer = 0;
+    const b = $('#detail-delete');
+    b.textContent = 'Delete';
+    b.classList.remove('armed');
+  }
+  function onDelete() {
+    const id = state.detail;
+    if (!id) return;
+    if (!delTimer) {
+      const b = $('#detail-delete');
+      b.textContent = 'Tap again to delete for good';
+      b.classList.add('armed');
+      delTimer = setTimeout(resetDeleteBtn, 4000);
+      return;
+    }
+    resetDeleteBtn();
+    state.detail = null;
+    closeSheet('detail');
+    deleteShot(id);
+  }
+  async function deleteShot(id) {
+    const it = state.items.get(id);
+    if (!it) return;
+    await remove(id);
+    const ids = [it.shot && it.shot.full, it.shot && it.shot.thumb].filter(Boolean);
+    for (const a of ids) {
+      try { await assets.delete(a); } catch (e) { /* the row is gone; a stray file only costs space */ }
+    }
+    if (storage.known && it.shot) {
+      storage.bytes = Math.max(0, storage.bytes - (it.shot.bytes || 0));
+      storage.files = Math.max(0, storage.files - ids.length);
+    }
+    [localThumbs, localFull].forEach((m) => { const u = m.get(id); if (u) { try { URL.revokeObjectURL(u); } catch (e) { /* ignore */ } m.delete(id); } });
+    localFullBlob.delete(id);
+    toast('Deleted.');
+    render();
+  }
+  function shotToTask(id) {
+    const it = state.items.get(id);
+    if (!it) return;
+    const title = (it.label && it.label.title) || it.text || 'this screenshot';
+    const t = now();
+    put({ id: newId(), text: 'Look into: ' + title, status: 'next', source: 'shot', ref: id, createdAt: t, updatedAt: t, nextStep: '', holdAt: null, order: nextOrder('bottom') });
+    toast('Added to Next.', { label: 'View', fn: () => { closeDetail(); setTab('pile'); } });
+  }
+  function setThumb(btn, refId) {
+    const s = refId ? state.items.get(refId) : null;
+    const src = s ? thumbSrc(s) : '';
+    btn.hidden = !src;
+    btn.dataset.ref = s ? s.id : '';
+    const im = btn.querySelector('img');
+    if (src && im.getAttribute('src') !== src) im.setAttribute('src', src);
+  }
 
   // ---------- render ----------
   let lastNowId = null;
   function render() {
-    renderNow(currentNow());
-
+    renderStatus();
+    renderBadge();
+    if (state.tab === 'now') renderNow();
+    else if (state.tab === 'pile') renderPile();
+    else renderSaved();
+    if (state.card) renderCard();
+    if (state.detail) renderDetail(false);
+    if (batch) renderBatch();
+  }
+  function renderStatus() {
+    const s = $('#status');
+    let txt = 'Connecting…', cls = 'dot-wait';
+    if (uploadBusy || uploadQueue.length) txt = 'Saving screenshots…';
+    else if (state.mode === 'db') { txt = state.pending ? 'Saving…' : 'Synced'; cls = state.pending ? 'dot-wait' : 'dot-ok'; }
+    else if (state.mode === 'local') { txt = 'Saved on this device only'; cls = ''; }
+    else if (state.mode === 'dberror') { txt = 'Sync paused. Reload to reconnect.'; cls = 'dot-bad'; }
+    s.textContent = txt;
+    s.className = 'status ' + cls;
+  }
+  function renderBadge() {
+    const n = byStatus('inbox').length, b = $('#pile-badge');
+    b.hidden = !n;
+    b.textContent = n > 99 ? '99+' : String(n);
+  }
+  function renderNow() {
+    const cur = currentNow();
+    const empty = $('#now-empty'), active = $('#now-active');
+    if (!cur) {
+      empty.hidden = false;
+      active.hidden = true;
+      lastNowId = null;
+      const next = byStatus('next').sort(cmpNext), inbox = byStatus('inbox');
+      const btn = $('#pick-btn'), hint = $('#now-empty-hint');
+      if (!state.loaded) { btn.hidden = true; hint.textContent = 'Loading…'; }
+      else if (next.length) { btn.hidden = false; btn.textContent = 'Start: ' + short(next[0].text, 48); hint.textContent = 'Nothing picked. The top of Next is waiting.'; }
+      else if (inbox.length) { btn.hidden = false; btn.textContent = 'Sort the pile (' + inbox.length + ')'; hint.textContent = 'Nothing picked yet.'; }
+      else { btn.hidden = true; hint.textContent = 'Nothing picked. Your head is clear.'; }
+    } else {
+      empty.hidden = true;
+      active.hidden = false;
+      const h = $('#now-text');
+      h.textContent = cur.text;
+      h.classList.toggle('long', cur.text.length > 70);
+      setThumb($('#now-thumb'), cur.ref);
+      const inp = $('#next-step');
+      if (cur.id !== lastNowId || (document.activeElement !== inp && inp.value !== (cur.nextStep || ''))) inp.value = cur.nextStep || '';
+      lastNowId = cur.id;
+      $('#now-hold').hidden = !cur.holdAt;
+      if (cur.holdAt) { $('#hold-since').textContent = fmtTime(cur.holdAt); $('#hold-ago').textContent = ago(cur.holdAt); }
+    }
+    $('#shot-row').hidden = !cap.shots;
+    $('#welcome').hidden = !(state.loaded && state.items.size === 0 && pendingShots.size === 0);
+  }
+  function renderPile() {
     const inbox = byStatus('inbox').sort((a, b) => b.createdAt - a.createdAt);
     $('#inbox-count').textContent = inbox.length;
-    const shown = inbox.slice(0, 6);
+    const shown = inbox.slice(0, 8);
     renderList($('#inbox-list'), shown, true);
     $('#inbox-empty').hidden = inbox.length > 0;
     $('#sort-btn').hidden = inbox.length === 0;
@@ -735,31 +1605,6 @@
     const stale = done.filter((i) => now() - (i.doneAt || i.updatedAt) > 7 * DAY);
     $('#clear-done').hidden = stale.length === 0;
     $('#clear-done').textContent = 'Clear ' + stale.length + ' done from more than a week ago';
-
-    $('#welcome').hidden = !(state.loaded && state.items.size === 0);
-    renderStatus();
-    if (state.card) renderCard();
-  }
-  function renderNow(cur) {
-    const empty = $('#now-empty'), active = $('#now-active');
-    if (!cur) {
-      empty.hidden = false; active.hidden = true; lastNowId = null;
-      const next = byStatus('next').sort(cmpNext), inbox = byStatus('inbox');
-      const btn = $('#pick-btn'), hint = $('#now-empty-hint');
-      if (next.length) { btn.hidden = false; btn.textContent = 'Start: ' + short(next[0].text, 48); hint.textContent = 'Nothing picked. The top of Next is waiting.'; }
-      else if (inbox.length) { btn.hidden = false; btn.textContent = 'Sort the pile and pick one'; hint.textContent = 'Nothing picked yet.'; }
-      else { btn.hidden = true; hint.textContent = 'Nothing picked yet. Catch a thought below.'; }
-      return;
-    }
-    empty.hidden = true; active.hidden = false;
-    const h = $('#now-text');
-    h.textContent = cur.text;
-    h.classList.toggle('long', cur.text.length > 70);
-    const inp = $('#next-step');
-    if (cur.id !== lastNowId || (document.activeElement !== inp && inp.value !== (cur.nextStep || ''))) inp.value = cur.nextStep || '';
-    lastNowId = cur.id;
-    $('#now-hold').hidden = !cur.holdAt;
-    if (cur.holdAt) { $('#hold-since').textContent = fmtTime(cur.holdAt); $('#hold-ago').textContent = ago(cur.holdAt); }
   }
   function renderList(ul, arr, showWhen) {
     ul.replaceChildren(...arr.map((it) => {
@@ -768,25 +1613,34 @@
       b.type = 'button';
       b.dataset.open = it.id;
       const t = el('span', 'item-text');
+      const ref = it.ref ? state.items.get(it.ref) : null;
+      if (ref) {
+        const im = document.createElement('img');
+        im.className = 'mini';
+        im.alt = '';
+        im.loading = 'lazy';
+        im.src = thumbSrc(ref);
+        im.addEventListener('error', () => im.remove());
+        t.appendChild(im);
+      }
       if (it.source === 'hold') t.appendChild(el('span', 'chip', 'held'));
       t.appendChild(document.createTextNode(it.text));
-      b.appendChild(t);
-      b.appendChild(el('span', 'item-when', showWhen ? whenShort(it.createdAt) : '›'));
+      b.append(t, el('span', 'item-when', showWhen ? whenShort(it.createdAt) : '›'));
       li.appendChild(b);
       return li;
     }));
   }
-  function renderStatus() {
-    const s = $('#status');
-    const m = {
-      loading: ['Connecting…', 'dot-wait'],
-      db: [state.pending ? 'Saving…' : 'Synced', state.pending ? 'dot-wait' : 'dot-ok'],
-      local: ['Saved on this device only', ''],
-      dberror: ['Sync paused. Reload to reconnect.', 'dot-bad'],
-    };
-    const [txt, cls] = m[state.mode] || m.loading;
-    s.textContent = txt;
-    s.className = 'status ' + cls;
+
+  // ---------- tabs ----------
+  function setTab(t) {
+    if (t !== 'pile' && t !== 'saved') t = 'now';
+    state.tab = t;
+    document.body.dataset.tab = t;
+    ['now', 'pile', 'saved'].forEach((k) => { $('#tab-' + k).hidden = k !== t; });
+    document.querySelectorAll('.tab-btn').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    $('#fab').hidden = t === 'now';
+    render();
+    window.scrollTo(0, 0);
   }
 
   // ---------- toast ----------
@@ -802,17 +1656,19 @@
     }
     t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(hideToast, action ? 6000 : 2600);
+    toastTimer = setTimeout(hideToast, action ? 6000 : 2800);
   }
   function hideToast() { $('#toast').hidden = true; }
 
   // ---------- wiring ----------
-  $('#catch-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const inp = $('#catch-input');
-    if (catchThought(inp.value, 'catch')) inp.value = '';
-    inp.focus();
-  });
+  $('#big-btn').addEventListener('click', () => openTalk());
+  $('#fab').addEventListener('click', () => openTalk());
+  $('#talk-save').addEventListener('click', saveTalk);
+  $('#talk-close').addEventListener('click', saveTalk);
+  $('#talk-clear').addEventListener('click', () => { const ta = $('#talk-input'); ta.value = ''; clearDraft(); updateTalk(); ta.focus(); });
+  $('#talk-input').addEventListener('input', () => { updateTalk(); clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 400); });
+  $('#talk-input').addEventListener('keydown', (e) => { if (FINE && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); saveTalk(); } });
+
   let stepTimer = 0;
   function commitStep() {
     clearTimeout(stepTimer);
@@ -824,31 +1680,134 @@
   $('#next-step').addEventListener('input', () => { clearTimeout(stepTimer); stepTimer = setTimeout(commitStep, 700); });
   $('#next-step').addEventListener('change', commitStep);
   $('#next-step').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commitStep(); e.target.blur(); } });
-  $('#now-done').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'done'); toast('Done. That counts.'); } };
-  $('#now-pause').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'next', 'top'); toast("Paused. It's at the top of Next."); } };
-  $('#now-later').onclick = () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'later'); } };
-  $('#resume-btn').onclick = () => { const c = currentNow(); if (c) patch(c.id, { holdAt: null }); };
-  $('#pick-btn').onclick = pick;
-  $('#hold-btn').onclick = openHold;
-  $('#sheet-save').onclick = saveHold;
-  $('#sheet-skip').onclick = closeHold;
-  $('#sheet-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveHold(); } });
-  $('#sort-btn').onclick = () => openCard(byStatus('inbox').sort((a, b) => a.createdAt - b.createdAt).map((i) => i.id), 'sort');
-  $('#sort-skip').onclick = () => { const c = state.card; if (c) { c.i++; renderCard(); } };
-  $('#sort-close').onclick = closeCard;
-  $('#clear-done').onclick = clearOldDone;
+  $('#now-done').addEventListener('click', () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'done'); toast('Done. That counts.'); } });
+  $('#now-pause').addEventListener('click', () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'next', 'top'); toast("Paused. It's at the top of Next."); } });
+  $('#now-later').addEventListener('click', () => { const c = currentNow(); if (c) { commitStep(); moveTo(c.id, 'later'); } });
+  $('#resume-btn').addEventListener('click', () => { const c = currentNow(); if (c) patch(c.id, { holdAt: null }); });
+  $('#pick-btn').addEventListener('click', pick);
+  $('#sort-btn').addEventListener('click', () => openCard(byStatus('inbox').sort((a, b) => a.createdAt - b.createdAt).map((i) => i.id), 'sort'));
+  $('#sort-skip').addEventListener('click', () => { const c = state.card; if (c) { c.i++; renderCard(); } });
+  $('#sort-close').addEventListener('click', closeCard);
+  $('#sort-split').addEventListener('click', () => { const c = state.card; if (c) splitItem(c.ids[c.i]); });
+  $('#clear-done').addEventListener('click', clearOldDone);
+  $('#words-btn').addEventListener('click', () => openSheet('words'));
+  $('#words-close').addEventListener('click', () => closeSheet('words'));
+  ['#now-thumb', '#sort-thumb'].forEach((s) => $(s).addEventListener('click', (e) => openDetail(e.currentTarget.dataset.ref)));
+
+  $('#file-input').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    addShots(files);
+  });
+  document.querySelectorAll('label[for="file-input"]').forEach((l) => l.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#file-input').click(); }
+  }));
+  $('#batch-done').addEventListener('click', closeBatch);
+  $('#batch-note').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); closeBatch(); } });
+  let searchTimer = 0;
+  $('#search').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const v = e.target.value;
+    searchTimer = setTimeout(() => { state.query = v; renderSaved(); }, 120);
+  });
+  $('#chips').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-kind]');
+    if (!b) return;
+    state.kind = b.dataset.kind;
+    renderSaved();
+  });
+  $('#label-bar-btn').addEventListener('click', labelUnlabeled);
+  $('#detail-close').addEventListener('click', closeDetail);
+  $('#detail-note').addEventListener('change', commitDetailNote);
+  $('#detail-note').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commitDetailNote(); e.target.blur(); } });
+  $('#detail-task').addEventListener('click', () => { commitDetailNote(); shotToTask(state.detail); });
+  $('#detail-relabel').addEventListener('click', () => relabel(state.detail));
+  $('#detail-delete').addEventListener('click', onDelete);
+  $('#detail-retry').addEventListener('click', () => retryShot(state.detail));
+  $('#detail-discard').addEventListener('click', () => { const id = state.detail; state.detail = null; closeSheet('detail'); discardShot(id); });
+  document.querySelectorAll('.tab-btn').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
+
   document.addEventListener('click', (e) => {
     const s = e.target.closest('[data-sort]');
     if (s) { cardAct(s.dataset.act); return; }
     const o = e.target.closest('[data-open]');
     if (o) { openCard([o.dataset.open], 'one'); return; }
-    if (e.target.classList.contains('backdrop')) { if (e.target.id === 'sheet') closeHold(); else closeCard(); }
+    const g = e.target.closest('[data-shot]');
+    if (g) { openDetail(g.dataset.shot); return; }
+    if (e.target.classList && e.target.classList.contains('backdrop')) {
+      const id = e.target.id;
+      if (id === 'sort') closeCard();
+      else if (id === 'batch') closeBatch();
+      else if (id === 'detail') closeDetail();
+      else closeSheet(id);
+    }
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeHold(); closeCard(); } });
-  setInterval(() => { const c = currentNow(); if (c && c.holdAt) $('#hold-ago').textContent = ago(c.holdAt); }, 30000);
 
-  render();
+  // Paste: images become screenshots anywhere; text pasted outside a field becomes a thought.
+  document.addEventListener('paste', (e) => {
+    const cd = e.clipboardData;
+    if (!cd) return;
+    const files = Array.from(cd.files || []).filter(isImageFile);
+    if (!files.length && cd.items) {
+      Array.from(cd.items).forEach((it) => { if (it.kind === 'file') { const f = it.getAsFile(); if (f && isImageFile(f)) files.push(f); } });
+    }
+    const t = e.target instanceof Element ? e.target : null;
+    const pad = t && t.closest('.paste-pill, .paste-wide');
+    if (files.length) {
+      e.preventDefault();
+      if (pad) { pad.textContent = ''; pad.blur(); }
+      addShots(files);
+      return;
+    }
+    if (t && !pad && t.closest('input, textarea, [contenteditable="true"]')) return;
+    const text = (cd.getData('text/plain') || cd.getData('text') || '').trim();
+    if (text) {
+      e.preventDefault();
+      if (pad) { pad.textContent = ''; pad.blur(); }
+      openTalk(text);
+    }
+  });
+  document.querySelectorAll('.paste-pill, .paste-wide').forEach((pad) => {
+    pad.addEventListener('input', () => { pad.textContent = ''; });
+    pad.addEventListener('keydown', (e) => { if (!(e.metaKey || e.ctrlKey) && e.key.length === 1) e.preventDefault(); });
+  });
+
+  // Drag and drop on a computer.
+  let dragDepth = 0;
+  const hasFiles = (e) => !!(e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0);
+  document.addEventListener('dragenter', (e) => { if (hasFiles(e)) { dragDepth++; $('#drop').hidden = false; } });
+  document.addEventListener('dragleave', (e) => { if (hasFiles(e)) { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $('#drop').hidden = true; } });
+  document.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
+  document.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth = 0;
+    $('#drop').hidden = true;
+    addShots(e.dataTransfer.files);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeTop(); return; }
+    if (e.metaKey || e.ctrlKey || e.altKey || openSheets.length) return;
+    const t = e.target instanceof Element ? e.target : null;
+    if (t && t.closest('input, textarea, [contenteditable="true"]')) return;
+    if (e.key === 'n' || e.key === 't') { e.preventDefault(); openTalk(); }
+    else if (e.key === '/') { e.preventDefault(); setTab('saved'); $('#search').focus(); }
+    else if (e.key === '1') setTab('now');
+    else if (e.key === '2') setTab('pile');
+    else if (e.key === '3') setTab('saved');
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+  setInterval(() => { const c = currentNow(); if (c && c.holdAt && state.tab === 'now') $('#hold-ago').textContent = ago(c.holdAt); }, 30000);
+
+  // ---------- start ----------
+  $('#paste-home').dataset.ph = FINE ? 'Paste (' + PASTE_KEY + ')' : 'Paste';
+  $('#paste-saved').dataset.ph = FINE ? 'Click here and press ' + PASTE_KEY + ', or paste anywhere on the page' : 'Long-press here, then tap Paste';
+  const hash = (location.hash || '').slice(1);
+  setTab(hash === 'pile' || hash === 'saved' ? hash : 'now');
   initStore();
-  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) $('#catch-input').focus();
+  initCaps();
+  recoverDraft();
+  if (hash === 'talk') openTalk();
 })();
 </script>

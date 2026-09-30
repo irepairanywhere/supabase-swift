@@ -5,28 +5,66 @@ The rest of this repository is the Supabase Swift client library and is unrelate
 
 ## Hold That Thought
 
-A one-screen inbox for the moments that go wrong:
-
-- A good thought shows up and gets lost. The catch box takes it in two seconds. No sorting, no categories.
-- Someone starts talking while you are mid-task. The orange button bookmarks what you were doing, takes the thought, and shows you a "back to it" card when they leave.
-- Too many thoughts at once, so nothing gets done. Sort the pile one card at a time. Only one thing ever sits in **Now**, with a "next small step" under it.
-- Two conversations at once. The "Words for the moment" card holds short phrases to say out loud that buy you five seconds.
-
 **Live page:** https://claude.ai/artifact/CW98GhnkpNfc14t7fn5K5o
 
-On a phone, open the link in Safari or Chrome and use *Share → Add to Home Screen* so it opens like an app.
+A phone-first page with three tabs and one giant button.
 
-### How it stores things
+- **The big orange button.** Tap it and a full-screen box opens with the keyboard up. Tap the keyboard's mic and talk. It bookmarks whatever you were doing first, so you can get back to it. Closing the box saves what you said, and a half-finished thought is saved the next time the page opens.
+- **Screenshots.** Tap *Add screenshot* and pick from Photos, paste one, or drag files onto the page on a computer. Each one is shrunk, stored, and read by Claude, which fills in a title, the kind of post (ad, video, post, product), the brand, the headline, the words in the picture, and search tags.
+- **Saved tab.** Search by brand, words in the picture, or why you saved it. Search forgives typos. Filter by kind. Open one to add a note, turn it into a task, ask Claude to read it again, or delete it.
+- **Pile tab.** Everything you caught, sorted one card at a time into Do it now, Next, Later, or Let it go. A long rambling voice note can be split into separate thoughts by Claude.
+- **Now tab.** One thing at a time, with a "next small step" line and a "Back to it" card after an interruption.
 
-- Published through Claude, the page keeps your items in that artifact's own database, so your phone and computer see the same list. Access is set so only the owner (and anyone the owner makes an Editor) can read the data.
-- The database holds up to 5,000 items in total. The page shows the newest 1,000. Done items count toward this, so use the "Clear done from more than a week ago" button inside **Done today** now and then.
-- Opened outside Claude (for example this file straight from disk), it falls back to saving in that browser only and says so in the top right.
+### Phone setup
+
+1. Open the live page in Safari, then use *Share → Add to Home Screen*.
+2. Optional, for a physical button: make a Shortcut with one *Open URL* action pointing at the live page link with `#talk` on the end. Assign it to the Action Button or to Back Tap (*Settings → Accessibility → Touch → Back Tap*). The page opens straight to the talk box. Tap the box, then the mic.
+3. Fastest screenshot path on iPhone: take the screenshot, open the preview, tap the checkmark or Done, choose *Copy and Delete*. Then long-press the dashed box on the page and tap *Paste*. The screenshot never lands in Photos.
+
+### Why the talk button uses the keyboard mic
+
+Claude's published pages can't use the microphone, camera, or clipboard reading directly. The page opens the keyboard for you and the phone does the listening. Any dictation keyboard works, including Apple's built-in dictation and Wispr Flow.
+
+### Storage and limits
+
+| What | Limit |
+| --- | --- |
+| Thoughts and screenshot records | 5,000 in the page's database; the page loads the newest 1,000 |
+| Screenshot files | 1 GB and 5,000 files. Each screenshot stores two files (full size and thumbnail), about 250 to 450 KB together, so roughly 2,500 screenshots |
+| Claude labels and splitting | Uses your own Claude plan. The first use in a session asks you to allow it |
+
+Access rules let only the owner, and anyone the owner makes an Editor, read or write the data.
+Opened outside Claude, the page falls back to saving thoughts in that browser only, and screenshots are turned off.
+
+### Shortcuts
+
+| Key | Action |
+| --- | --- |
+| `n` or `t` | Open the talk box |
+| `/` | Search saved screenshots |
+| `1` `2` `3` | Now, Pile, Saved |
+| `Esc` | Close the top sheet (the talk box saves on close) |
+
+Link endings `#talk`, `#pile` and `#saved` open the page on that screen.
+
+### Open-source tools considered
+
+| Tool | License | Fit |
+| --- | --- | --- |
+| Karakeep (was Hoarder) | AGPL-3.0 | Best stand-alone app for "save everything": iOS share sheet, AI tags, OCR. Self-host or paid cloud |
+| Immich | AGPL-3.0 | Backs up the Screenshots album automatically and searches text in images. Needs your own server |
+| Ente Photos | AGPL-3.0 | Hosted, 10 GB free, searches by description but not by exact words |
+| Linkwarden | AGPL-3.0 | Links only from the phone share sheet, not screenshots |
+| whisper.cpp, Vosk, Moonshine, transformers.js | MIT / Apache-2.0 | Can't run inside a Claude page: the mic and model downloads are blocked |
+| Tesseract.js | Apache-2.0 | Can't run inside a Claude page: it downloads language data at runtime. Claude's own image reading replaces it |
+| Fuse.js 7.2.0 | Apache-2.0 | Used here for typo-tolerant search, loaded from jsDelivr with an integrity hash. If it fails to load, search still does exact matching |
 
 ### Files
 
 - `hold-that-thought/index.html` is the whole tool: markup, styles, and script in one file, no build step.
-  It is written in the shape Claude's artifact publisher expects (no `<html>` or `<head>` wrapper; the publisher adds those), so it will look plain if opened directly from disk.
+  It is written in the shape Claude's artifact publisher expects (no `<html>` or `<head>` wrapper; the publisher adds those), so it looks plain if opened straight from disk.
+  It targets the artifact runtime contract 0.2.61 and declares the `db`, `assets` and `sample` capabilities.
 
 ### Changing it
 
-Edit `index.html` here, then ask Claude in a session on this repo to republish it to the same link. Keep the `<title>` as is so the artifact keeps its name and URL.
+Edit `index.html` here, then ask Claude in a session on this repo to republish it to the same link with the same capabilities. Keep the `<title>` so the artifact keeps its name.
