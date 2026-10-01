@@ -168,6 +168,21 @@
   .big svg.i { width: 54px; height: 54px; stroke-width: 1.9; }
   .big-label { font-family: var(--display); font-weight: 800; font-size: clamp(21px, 5.8vw, 27px); line-height: 1.02; letter-spacing: -.015em; max-width: 8ch; }
   .big-cap { margin: 0; font-size: 14px; color: var(--muted); text-align: center; max-width: 32ch; text-wrap: balance; }
+  a.big, a.fab { text-decoration: none; }
+  .big-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 16px; margin-top: -6px; }
+  #voice p { margin: 0; }
+  #voice h3 { font-family: var(--display); font-size: 16px; font-weight: 700; margin: 6px 0 0; }
+  .steps { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 15px; }
+  .steps li::marker { font-weight: 700; color: var(--muted); }
+  .kv { border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+  .kv th, .kv td { border: 1px solid var(--line); padding: 6px 12px; text-align: left; }
+  .kv th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .copy-row { display: flex; gap: 8px; align-items: center; }
+  .copy-row code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-size: 13px; }
+  .plain-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+  .switch-row { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; font-size: 15px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+  .switch-row input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: none; }
 
   .shot-row { display: flex; justify-content: center; align-items: stretch; flex-wrap: wrap; gap: 10px; }
   .paste-pill, .paste-wide {
@@ -254,7 +269,7 @@
   .fab:active { transform: scale(.95); }
 
   .backdrop { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; max-height: calc(100% - 24px); overflow-y: auto; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow); display: grid; gap: 12px; }
+  .sheet { background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; max-height: calc(100% - 24px); overflow-y: auto; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
   @media (min-width: 600px) {
     .backdrop { align-items: center; padding: 16px; }
     .sheet { border-radius: 18px; padding-bottom: 18px; }
@@ -343,7 +358,15 @@
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
         <span class="big-label">Hold that thought</span>
       </button>
+      <a class="big" id="big-link" hidden aria-describedby="big-cap" href="shortcuts://run-shortcut?name=Hold%20That%20Thought">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        <span class="big-label">Hold that thought</span>
+      </a>
       <p class="big-cap" id="big-cap">Tap it, then talk. It bookmarks what you were doing first.</p>
+      <div class="big-links">
+        <button type="button" class="linkish" id="type-instead" hidden>Type instead</button>
+        <button type="button" class="linkish" id="voice-btn">Set up one-press talk</button>
+      </div>
     </div>
 
     <div class="shot-row" id="shot-row" hidden>
@@ -431,6 +454,10 @@
 <button type="button" class="fab" id="fab" hidden aria-label="Hold that thought">
   <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
 </button>
+
+<a class="fab" id="fab-link" hidden aria-label="Hold that thought" href="shortcuts://run-shortcut?name=Hold%20That%20Thought">
+  <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+</a>
 
 <nav class="tabbar" aria-label="Sections">
   <div class="tabbar-in">
@@ -546,6 +573,49 @@
   </div>
 </div>
 
+<div class="backdrop" id="voice" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="voice-title">
+    <h2 id="voice-title">One-press talk</h2>
+    <p>Claude pages can't use your microphone, but your iPhone can. Build this Shortcut once. When you run it, it starts listening right away and drops your words into Caught here.</p>
+    <ol class="steps">
+      <li>In the Shortcuts app, tap <b>+</b> and name the new shortcut <b>Hold That Thought</b>.</li>
+      <li>Add <b>Dictate Text</b>. Set Stop Listening to <b>After Pause</b>.</li>
+      <li>Add <b>Base64 Encode</b>. Tap the arrow on it and set Line Breaks to <b>None</b>.</li>
+      <li>Add <b>Replace Text</b> three times, one for each row. Leave the last Replace box empty.
+        <table class="kv">
+          <thead><tr><th scope="col">Find</th><th scope="col">Replace with</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">+</td><td class="mono">-</td></tr>
+            <tr><td class="mono">/</td><td class="mono">_</td></tr>
+            <tr><td class="mono">=</td><td>leave empty</td></tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Add <b>Random Number</b>. Set it to between 1 and 999999999.</li>
+      <li>Add <b>Text</b> and paste the link below into it. Then tap <b>Random Number</b> in the bar above the keyboard, type a dot, and tap <b>Updated Text</b>.</li>
+      <li>Add <b>Open URLs</b>.</li>
+    </ol>
+    <div class="copy-row">
+      <code id="voice-url"></code>
+      <button type="button" class="btn small" id="voice-copy">Copy</button>
+    </div>
+    <h3>Make it one press</h3>
+    <ul class="plain-list">
+      <li>Action Button: in Settings, open Action Button, pick Shortcut, then Hold That Thought.</li>
+      <li>Back Tap: in Settings, open Accessibility, then Touch, then Back Tap. Pick Hold That Thought for Double Tap.</li>
+      <li>Siri: say "Hey Siri, Hold That Thought."</li>
+    </ul>
+    <h3>Test it</h3>
+    <p>Run the shortcut and say "testing one two". A few seconds later this page opens and shows "Caught from your voice".</p>
+    <label class="switch-row" for="use-shortcut">
+      <input type="checkbox" id="use-shortcut">
+      <span>Make the orange button start this Shortcut on this device</span>
+    </label>
+    <p class="hint">Turn this on only after the test works. If the orange button then does nothing when you tap it, turn this off and use the Action Button or Back Tap.</p>
+    <button type="button" class="btn" id="voice-close">Close</button>
+  </div>
+</div>
+
 <div class="drop" id="drop" hidden><p>Drop screenshots to save them</p></div>
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 
@@ -556,6 +626,9 @@
   const $ = (s) => document.querySelector(s);
   const LS_KEY = 'hold-that-thought.items.v1';
   const LS_DRAFT = 'hold-that-thought.draft.v1';
+  const LS_SEEN = 'hold-that-thought.voice-seen.v1';
+  const LS_SHORTCUT = 'hold-that-thought.use-shortcut.v1';
+  const ARTIFACT_URL = 'https://claude.ai/artifact/CW98GhnkpNfc14t7fn5K5o';
   const DAY = 86400000;
   const KIND_ONE = { ad: 'Ad', video: 'Video', post: 'Post', product: 'Product', article: 'Article', chat: 'Chat', other: 'Other' };
   const KIND_MANY = { ad: 'Ads', video: 'Videos', post: 'Posts', product: 'Products', article: 'Articles', chat: 'Chats', other: 'Other' };
@@ -595,6 +668,7 @@
   const queued = [];
   const chains = new Map();
   const openSheets = [];
+  const loadedWaiters = [];
 
   const pendingShots = new Map();
   const localThumbs = new Map();
@@ -714,6 +788,8 @@
   }
   function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(all())); } catch (e) { /* private window or blocked storage */ } }
   function flushQueue() { queued.splice(0).forEach((op) => op()); }
+  function whenLoaded(fn) { if (state.loaded) fn(); else loadedWaiters.push(fn); }
+  function flushLoaded() { loadedWaiters.splice(0).forEach((fn) => fn()); }
 
   function useCap(name) {
     try {
@@ -733,6 +809,7 @@
         state.items = m;
         state.pending = snap.metadata.hasPendingWrites;
         state.loaded = true;
+        flushLoaded();
         render();
       }, () => { state.mode = 'dberror'; render(); });
     } else {
@@ -740,6 +817,7 @@
       loadLocal();
       flushQueue();
       state.loaded = true;
+      flushLoaded();
     }
     refreshCaps();
   }
@@ -884,6 +962,112 @@
       catchThought(d.text, 'draft');
       toast("Saved a thought you didn't finish.");
     }
+  }
+
+  // ---------- voice hand-off from the iPhone Shortcut ----------
+  // The Shortcut dictates, base64url-encodes the words and opens ARTIFACT_URL#say.<random>.<words>.
+  // Anchors may only carry letters, digits and . _ ~ -, which base64url fits.
+  let pendingSay = null;
+  function fnv(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(36);
+  }
+  function b64urlToText(data) {
+    let b = data.replace(/-/g, '+').replace(/_/g, '/');
+    while (b.length % 4) b += '=';
+    const bin = atob(b);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  function parseSay(h) {
+    const m = /^say[.~]([A-Za-z0-9_.~-]+)$/.exec(h);
+    if (!m) return { bad: true };
+    const parts = m[1].split('.');
+    const data = parts.pop();
+    const nonce = parts.join('.');
+    let text = '';
+    try { text = b64urlToText(data); } catch (e) { return { bad: true }; }
+    text = text.replace(/\s+/g, ' ').trim();
+    if (!text) return { bad: true };
+    return { text: text.slice(0, 4000), key: fnv(nonce + '|' + data), nonce: !!nonce };
+  }
+  function seenMap() { try { return JSON.parse(localStorage.getItem(LS_SEEN) || '{}') || {}; } catch (e) { return {}; } }
+  function wasSeen(key, withNonce) {
+    const t = seenMap()[key];
+    return !!t && now() - t < (withNonce ? 365 * DAY : 12 * 3600e3);
+  }
+  function markSeen(key) {
+    const m = seenMap();
+    m[key] = now();
+    Object.keys(m).sort((a, b) => m[b] - m[a]).slice(500).forEach((k) => { delete m[k]; });
+    try { localStorage.setItem(LS_SEEN, JSON.stringify(m)); } catch (e) { /* storage blocked; the database check still guards repeats */ }
+  }
+  function clearHash() {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* the hash just stays */ }
+  }
+  function takeSay(h) {
+    const r = parseSay(h);
+    clearHash();
+    if (r.bad) { toast("A voice note arrived but couldn't be read. Check the Replace Text steps in Set up one-press talk."); return; }
+    pendingSay = r;
+    whenLoaded(processSay);
+  }
+  function processSay() {
+    const r = pendingSay;
+    pendingSay = null;
+    if (!r) return;
+    const repeat = wasSeen(r.key, r.nonce) || all().some((i) => i.voiceKey === r.key && (r.nonce || now() - i.createdAt < 12 * 3600e3));
+    if (repeat) return;
+    markSeen(r.key);
+    const cur = currentNow();
+    if (cur && !cur.holdAt) patch(cur.id, { holdAt: now() });
+    const id = catchThought(r.text, cur ? 'hold' : 'voice', { voiceKey: r.key });
+    if (id) toast('Caught from your voice: "' + short(r.text, 60) + '"', { label: 'Undo', fn: () => remove(id) });
+  }
+  function handleHash(h) {
+    if (h.indexOf('say') === 0) takeSay(h);
+    else if (h === 'talk') openTalk();
+    else if (h === 'pile' || h === 'saved' || h === 'now') setTab(h);
+  }
+
+  // ---------- which kind of orange button ----------
+  function useShortcut() { try { return localStorage.getItem(LS_SHORTCUT) === '1'; } catch (e) { return false; } }
+  function setUseShortcut(on) {
+    try { if (on) localStorage.setItem(LS_SHORTCUT, '1'); else localStorage.removeItem(LS_SHORTCUT); } catch (e) { /* storage blocked; the setting can't be kept */ }
+    applyTalkMode();
+  }
+  function applyTalkMode() {
+    const sc = useShortcut();
+    $('#big-btn').hidden = sc;
+    $('#big-link').hidden = !sc;
+    $('#type-instead').hidden = !sc;
+    $('#big-cap').textContent = sc ? 'Tap it and talk. Your Shortcut listens and drops the words here.' : 'Tap it, then talk. It bookmarks what you were doing first.';
+    const onNow = state.tab === 'now';
+    $('#fab').hidden = onNow || sc;
+    $('#fab-link').hidden = onNow || !sc;
+  }
+  function openVoiceSetup() {
+    $('#voice-url').textContent = ARTIFACT_URL + '#say.';
+    $('#use-shortcut').checked = useShortcut();
+    openSheet('voice');
+  }
+  function copyVoiceUrl() {
+    const text = ARTIFACT_URL + '#say.';
+    const selectIt = () => {
+      try {
+        const r = document.createRange();
+        r.selectNodeContents($('#voice-url'));
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+      } catch (e) { /* selection unavailable */ }
+      toast('Link selected. Use Copy from the menu.');
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => toast('Link copied.'), selectIt);
+    } catch (e) { selectIt(); }
   }
 
   // ---------- one-card sorting ----------
@@ -1638,7 +1822,7 @@
     document.body.dataset.tab = t;
     ['now', 'pile', 'saved'].forEach((k) => { $('#tab-' + k).hidden = k !== t; });
     document.querySelectorAll('.tab-btn').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-    $('#fab').hidden = t === 'now';
+    applyTalkMode();
     render();
     window.scrollTo(0, 0);
   }
@@ -1663,6 +1847,19 @@
   // ---------- wiring ----------
   $('#big-btn').addEventListener('click', () => openTalk());
   $('#fab').addEventListener('click', () => openTalk());
+  ['#big-link', '#fab-link'].forEach((sel) => $(sel).addEventListener('click', () => {
+    const cur = currentNow();
+    if (cur && !cur.holdAt) patch(cur.id, { holdAt: now() });
+  }));
+  $('#type-instead').addEventListener('click', () => openTalk());
+  $('#voice-btn').addEventListener('click', openVoiceSetup);
+  $('#voice-close').addEventListener('click', () => closeSheet('voice'));
+  $('#voice-copy').addEventListener('click', copyVoiceUrl);
+  $('#use-shortcut').addEventListener('change', (e) => {
+    setUseShortcut(e.target.checked);
+    toast(e.target.checked ? 'The orange button now starts your Shortcut.' : 'The orange button opens the talk box again.');
+  });
+  window.addEventListener('hashchange', () => handleHash((location.hash || '').slice(1)));
   $('#talk-save').addEventListener('click', saveTalk);
   $('#talk-close').addEventListener('click', saveTalk);
   $('#talk-clear').addEventListener('click', () => { const ta = $('#talk-input'); ta.value = ''; clearDraft(); updateTalk(); ta.focus(); });
@@ -1808,6 +2005,7 @@
   initStore();
   initCaps();
   recoverDraft();
-  if (hash === 'talk') openTalk();
+  applyTalkMode();
+  if (hash) handleHash(hash);
 })();
 </script>
